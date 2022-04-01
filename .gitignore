@@ -130,3 +130,6 @@ dmypy.json
 
 # Pytorch file
 *.pt
+
+# Cached data obj
+evaluator/data/
