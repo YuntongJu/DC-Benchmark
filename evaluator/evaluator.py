@@ -1,7 +1,7 @@
 class Evaluator:
 
     def __init__(self, input_images, input_labels, test_dataset):
-       self.input_image = input_images
+       self.input_images = input_images
        self.input_labels = input_labels
        self.test_dataset = test_dataset
 

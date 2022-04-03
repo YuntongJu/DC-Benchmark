@@ -1,8 +1,5 @@
 class EvaluatorUtils:
 
-    def create_network(model_config):
-        pass
-
     def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args):
         net = net.to(args.device)
         images_train = images_train.to(args.device)
