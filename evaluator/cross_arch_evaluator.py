@@ -1,5 +1,9 @@
+import sys
+sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
+
 from evaluator import Evaluator
 from evaluator_utils import EvaluatorUtils
+from networks.network_utils import NetworkUtils
 import argparse
 
 
@@ -38,7 +42,7 @@ class CrossArchEvaluator(Evaluator):
         args.device = 'cuda'
         per_arch_accuracy = {}
         for model_name in self.config['models']:
-            model = EvaluatorUtils.create_network(model_name)
+            model = NetworkUtils.create_network(model_name)
             per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
         return per_arch_accuracy
         

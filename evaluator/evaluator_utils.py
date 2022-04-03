@@ -1,5 +1,14 @@
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import Dataset
+from torchvision import datasets, transforms
+
+
 class EvaluatorUtils:
 
+    @staticmethod
     def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args):
         net = net.to(args.device)
         images_train = images_train.to(args.device)
