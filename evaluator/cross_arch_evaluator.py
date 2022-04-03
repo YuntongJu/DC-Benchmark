@@ -1,5 +1,10 @@
+import sys
+sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
+
+import torch
 from evaluator import Evaluator
 from evaluator_utils import EvaluatorUtils
+from networks.network_utils import NetworkUtils
 import argparse
 
 
@@ -30,15 +35,16 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
+        args.dsa = False
+        args.device = 'cuda'
         return args
 
     
     def evaluate(self):
         args = self.prepare_args()
-        args.device = 'cuda'
         per_arch_accuracy = {}
         for model_name in self.config['models']:
-            model = EvaluatorUtils.create_network(model_name)
+            model = NetworkUtils.create_network(model_name)
             per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
         return per_arch_accuracy
         
@@ -52,5 +58,6 @@ if __name__ == '__main__':
     print(train_image.shape)
     print(train_label.shape)
     dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transforms.ToTensor())
-    evaluator = CrossArchEvaluator(train_image, train_label, dst_test, {'models':['convnet']})
+    testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate()

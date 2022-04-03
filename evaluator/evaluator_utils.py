@@ -1,5 +1,29 @@
+import numpy as np
+import time
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import Dataset
+from torchvision import datasets, transforms
+
+class TensorDataset(Dataset):
+    def __init__(self, images, labels): # images: n x c x h x w tensor
+        self.images = images.detach().float()
+        self.labels = labels.detach()
+
+    def __getitem__(self, index):
+        return self.images[index], self.labels[index]
+
+    def __len__(self):
+        return self.images.shape[0]
+
+def get_time():
+    return str(time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime()))
+
 class EvaluatorUtils:
 
+
+    @staticmethod
     def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args):
         net = net.to(args.device)
         images_train = images_train.to(args.device)
@@ -15,17 +39,18 @@ class EvaluatorUtils:
 
         start = time.time()
         for ep in range(Epoch+1):
-            loss_train, acc_train = epoch('train', trainloader, net, optimizer, criterion, args, aug = True)
+            loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = False)
             if ep in lr_schedule:
                 lr *= 0.1
                 optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
 
         time_train = time.time() - start
-        loss_test, acc_test = epoch('test', testloader, net, optimizer, criterion, args, aug = False)
+        loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False)
         print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
 
         return net, acc_train, acc_test
 
+    @staticmethod
     def epoch(mode, dataloader, net, optimizer, criterion, args, aug):
         loss_avg, acc_avg, num_exp = 0, 0, 0
         net = net.to(args.device)
@@ -62,5 +87,5 @@ class EvaluatorUtils:
         loss_avg /= num_exp
         acc_avg /= num_exp
 
-        return loss_avg, 
+        return loss_avg, acc_avg
         
