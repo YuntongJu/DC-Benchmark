@@ -1,11 +1,15 @@
 import numpy as np
+<<<<<<< HEAD
 import time
+=======
+>>>>>>> fb239b16e881bcf70e2fed42d7a93fbf3006b21a
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 
+<<<<<<< HEAD
 class TensorDataset(Dataset):
     def __init__(self, images, labels): # images: n x c x h x w tensor
         self.images = images.detach().float()
@@ -23,6 +27,11 @@ def get_time():
 class EvaluatorUtils:
 
 
+=======
+
+class EvaluatorUtils:
+
+>>>>>>> fb239b16e881bcf70e2fed42d7a93fbf3006b21a
     @staticmethod
     def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args):
         net = net.to(args.device)
