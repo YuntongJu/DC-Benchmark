@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # Pytorch file
-*.pt
+!distilled_results/
 
 # Cached data obj
 evaluator/data/
