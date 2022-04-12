@@ -1,6 +1,6 @@
 import torch
 
-class DMDataLoader:
+class DSADataLoader:
 
     @staticmethod
     def load_data(path_to_pt_file):
@@ -11,6 +11,6 @@ class DMDataLoader:
 
 
 if __name__ == '__main__':
-    train_images, train_labels = DMDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
+    train_images, train_labels = DSADataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
     print(train_images.shape)
     print(train_labels.shape)
