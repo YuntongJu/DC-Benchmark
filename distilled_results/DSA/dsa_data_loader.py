@@ -11,6 +11,6 @@ class DMDataLoader:
 
 
 if __name__ == '__main__':
-    train_images, train_labels = DMDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC10/res_DM_CIFAR10_ConvNet_10ipc.pt')
+    train_images, train_labels = DMDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
     print(train_images.shape)
     print(train_labels.shape)
