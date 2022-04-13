@@ -133,6 +133,7 @@ dmypy.json
 
 # Cached data obj
 evaluator/data/
+**/data/
 
 # DS_Store
 .DS_Store

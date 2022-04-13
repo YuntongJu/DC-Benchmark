@@ -2,8 +2,8 @@ import sys
 sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 
 import torch
-from evaluator import Evaluator
-from evaluator_utils import EvaluatorUtils
+from evaluator.evaluator import Evaluator
+from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
 
@@ -58,48 +58,18 @@ def get_cifar10_testset():
     dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
     return dst_test
 
-# evaluation for DM
+
+# Evaluation for DC
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    from distilled_results.DM.dm_data_loader import DMDataLoader
+    from distilled_results.DC.dc_data_loader import DCDataLoader
     from torchvision import datasets, transforms
 
-    train_image, train_label = DMDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC10/res_DM_CIFAR10_ConvNet_10ipc.pt')
+    train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
     print(train_image.shape)
     print(train_label.shape)
     dst_test = get_cifar10_testset()
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate()
-
-
-# Evaluation for DC
-# if __name__ == '__main__':
-#     import sys
-#     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-#     from distilled_results.DC.dc_data_loader import DCDataLoader
-#     from torchvision import datasets, transforms
-
-#     train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
-#     print(train_image.shape)
-#     print(train_label.shape)
-#     dst_test = get_cifar10_testset()
-#     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-#     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
-#     evaluator.evaluate()
-
-# Evaluation for DSA
-# if __name__ == '__main__':
-#     import sys
-#     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-#     from distilled_results.DC.dc_data_loader import DCDataLoader
-#     from torchvision import datasets, transforms
-
-#     train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
-#     print(train_image.shape)
-#     print(train_label.shape)
-#     dst_test = get_cifar10_testset()
-#     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-#     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
-#     evaluator.evaluate()
