@@ -63,6 +63,16 @@ class CrossArchEvaluator(Evaluator):
 #     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
 #     evaluator.evaluate()
 
+def get_cifar10_testset():
+    channel = 3
+    im_size = (32, 32)
+    num_classes = 10
+    mean = [0.4914, 0.4822, 0.4465]
+    std = [0.2023, 0.1994, 0.2010]
+    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+    dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+    return dst_test
+
 # Evaluation for DC
 if __name__ == '__main__':
     import sys
@@ -73,7 +83,7 @@ if __name__ == '__main__':
     train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
     print(train_image.shape)
     print(train_label.shape)
-    dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transforms.ToTensor())
+    dst_test = get_cifar10_testset()
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate()
