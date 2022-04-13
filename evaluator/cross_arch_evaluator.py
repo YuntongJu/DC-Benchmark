@@ -48,13 +48,29 @@ class CrossArchEvaluator(Evaluator):
             per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
         return per_arch_accuracy
         
+# evaluation for DM
+# if __name__ == '__main__':
+#     import sys
+#     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
+#     from distilled_results.DM.dm_data_loader import DMDataLoader
+#     from torchvision import datasets, transforms
+
+#     train_image, train_label = DMDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC10/res_DM_CIFAR10_ConvNet_10ipc.pt')
+#     print(train_image.shape)
+#     print(train_label.shape)
+#     dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transforms.ToTensor())
+#     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
+#     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
+#     evaluator.evaluate()
+
+# Evaluation for DC
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    from distilled_results.distribution_matching.dm_data_loader import DMDataLoader
+    from distilled_results.DC.dc_data_loader import DCDataLoader
     from torchvision import datasets, transforms
 
-    train_image, train_label = DMDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/distribution_matching/res_DM_CIFAR10_ConvNet_50ipc.pt')
+    train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
     print(train_image.shape)
     print(train_label.shape)
     dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transforms.ToTensor())
