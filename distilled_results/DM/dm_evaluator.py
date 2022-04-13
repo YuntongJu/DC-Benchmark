@@ -43,6 +43,7 @@ class CrossArchEvaluator(Evaluator):
     def evaluate(self):
         args = self.prepare_args()
         if args.dsa:
+            args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
             args.dc_aug_param = None
         per_arch_accuracy = {}

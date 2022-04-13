@@ -23,6 +23,18 @@ def get_time():
 
 class EvaluatorUtils:
 
+    class ParamDiffAug():
+        def __init__(self):
+            self.aug_mode = 'S' #'multiple or single'
+            self.prob_flip = 0.5
+            self.ratio_scale = 1.2
+            self.ratio_rotate = 15.0
+            self.ratio_crop_pad = 0.125
+            self.ratio_cutout = 0.5 # the size would be 0.5x0.5
+            self.brightness = 1.0
+            self.saturation = 2.0
+            self.contrast = 0.5
+            
     @staticmethod
     def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args):
         net = net.to(args.device)
@@ -39,7 +51,7 @@ class EvaluatorUtils:
 
         start = time.time()
         for ep in range(Epoch+1):
-            loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = False)
+            loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True)
             if ep in lr_schedule:
                 lr *= 0.1
                 optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
@@ -174,17 +186,6 @@ class EvaluatorUtils:
 
 
 
-        class ParamDiffAug():
-            def __init__(self):
-                self.aug_mode = 'S' #'multiple or single'
-                self.prob_flip = 0.5
-                self.ratio_scale = 1.2
-                self.ratio_rotate = 15.0
-                self.ratio_crop_pad = 0.125
-                self.ratio_cutout = 0.5 # the size would be 0.5x0.5
-                self.brightness = 1.0
-                self.saturation = 2.0
-                self.contrast = 0.5
 
 
     def set_seed_DiffAug(param):
