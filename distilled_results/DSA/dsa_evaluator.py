@@ -6,6 +6,9 @@ from evaluator.evaluator import Evaluator
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
+import tqdm
+import kornia as K
+from torch.utils.data import Dataset
 
 
 class CrossArchEvaluator(Evaluator):
@@ -14,7 +17,8 @@ class CrossArchEvaluator(Evaluator):
         super().__init__(input_images, input_labels, test_dataset)
         self.config = config
 
-    def prepare_args(self):
+    @staticmethod
+    def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
         parser.add_argument('--method', type=str, default='DC', help='DC/DSA')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
@@ -52,15 +56,58 @@ class CrossArchEvaluator(Evaluator):
             model = NetworkUtils.create_network(model_name)
             per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
         return per_arch_accuracy
-        
-def get_cifar10_testset():
+
+class TensorDataset(Dataset):
+    def __init__(self, images, labels): # images: n x c x h x w tensor
+        self.images = images.detach().float()
+        self.labels = labels.detach()
+
+    def __getitem__(self, index):
+        return self.images[index], self.labels[index]
+
+    def __len__(self):
+        return self.images.shape[0]
+
+def get_cifar10_testset(args):
     channel = 3
     im_size = (32, 32)
     num_classes = 10
     mean = [0.4914, 0.4822, 0.4465]
     std = [0.2023, 0.1994, 0.2010]
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+    # transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+    transform = transforms.Compose([transforms.ToTensor()])
     dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+    dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
+
+    if args.zca:
+        images = []
+        labels = []
+        print("Train ZCA")
+        for i in tqdm.tqdm(range(len(dst_train))):
+            im, lab = dst_train[i]
+            images.append(im)
+            labels.append(lab)
+        images = torch.stack(images, dim=0).to(args.device)
+        labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+        zca = K.enhance.ZCAWhitening(eps=0.1, compute_inv=True)
+        zca.fit(images)
+        zca_images = zca(images).to("cpu")
+        dst_train = TensorDataset(zca_images, labels)
+
+        images = []
+        labels = []
+        print("Test ZCA")
+        for i in tqdm.tqdm(range(len(dst_test))):
+            im, lab = dst_test[i]
+            images.append(im)
+            labels.append(lab)
+        images = torch.stack(images, dim=0).to(args.device)
+        labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+
+        zca_images = zca(images).to("cpu")
+        dst_test = TensorDataset(zca_images, labels)
+
+        args.zca_trans = zca
     return dst_test
 
 
@@ -71,10 +118,12 @@ if __name__ == '__main__':
     from distilled_results.DC.dc_data_loader import DCDataLoader
     from torchvision import datasets, transforms
 
+    args = CrossArchEvaluator.prepare_args()
     train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DSA/CIFAR10/IPC10/res_DSA_CIFAR10_ConvNet_10ipc.pt')
     print(train_image.shape)
     print(train_label.shape)
-    dst_test = get_cifar10_testset()
+    args.zca = False
+    dst_test = get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate()
