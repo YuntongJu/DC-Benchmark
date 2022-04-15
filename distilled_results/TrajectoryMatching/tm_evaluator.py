@@ -5,7 +5,11 @@ import torch
 from evaluator.evaluator import Evaluator
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
+import kornia as K
+import tqdm
 import argparse
+from torch.utils.data import Dataset
+
 
 
 class CrossArchEvaluator(Evaluator):
@@ -97,6 +101,17 @@ class CrossArchEvaluator(Evaluator):
             per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
         return per_arch_accuracy
         
+class TensorDataset(Dataset):
+    def __init__(self, images, labels): # images: n x c x h x w tensor
+        self.images = images.detach().float()
+        self.labels = labels.detach()
+
+    def __getitem__(self, index):
+        return self.images[index], self.labels[index]
+
+    def __len__(self):
+        return self.images.shape[0]
+
 def get_cifar10_testset(args):
     channel = 3
     im_size = (32, 32)
@@ -109,7 +124,40 @@ def get_cifar10_testset(args):
         transform = transforms.Compose([transforms.ToTensor()])
     else:
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+
+    dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
     dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+
+    if args.zca:
+        images = []
+        labels = []
+        print("Train ZCA")
+        for i in tqdm.tqdm(range(len(dst_train))):
+            im, lab = dst_train[i]
+            images.append(im)
+            labels.append(lab)
+        images = torch.stack(images, dim=0).to(args.device)
+        labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+        zca = K.enhance.ZCAWhitening(eps=0.1, compute_inv=True)
+        zca.fit(images)
+        zca_images = zca(images).to("cpu")
+        dst_train = TensorDataset(zca_images, labels)
+
+        images = []
+        labels = []
+        print("Test ZCA")
+        for i in tqdm.tqdm(range(len(dst_test))):
+            im, lab = dst_test[i]
+            images.append(im)
+            labels.append(lab)
+        images = torch.stack(images, dim=0).to(args.device)
+        labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+
+        zca_images = zca(images).to("cpu")
+        dst_test = TensorDataset(zca_images, labels)
+
+        args.zca_trans = zca
+
     return dst_test
 
 
