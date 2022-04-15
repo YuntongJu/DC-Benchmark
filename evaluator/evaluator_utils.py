@@ -43,7 +43,8 @@ class EvaluatorUtils:
         lr = float(args.lr_net)
         Epoch = int(args.epoch_eval_train)
         lr_schedule = [Epoch//2+1]
-        optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
+        # optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
+        optimizer = torch.optim.Adam(net.parameters())
         criterion = nn.CrossEntropyLoss().to(args.device)
 
         dst_train = TensorDataset(images_train, labels_train)
@@ -54,7 +55,8 @@ class EvaluatorUtils:
             loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True)
             if ep in lr_schedule:
                 lr *= 0.1
-                optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
+                # optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
+                # optimizer = torch.optim.Adam(net.parameters(), lr=lr)
 
         time_train = time.time() - start
         loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False)

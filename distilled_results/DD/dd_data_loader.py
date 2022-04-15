@@ -1,18 +1,16 @@
 import torch
 
-class TMDataLoader:
+class DDDataLoader:
 
     @staticmethod
-    def load_images(path_to_pt_file):
-        return torch.load(path_to_pt_file)
+    def load_data(path_to_pt_file):
+        data = torch.load(path_to_pt_file)
+        return data[-1][0], data[-1][1]
 
-    @staticmethod
-    def load_labels(path_to_pt_file):
-        return torch.load(path_to_pt_file)
 
 
 if __name__ == '__main__':
     
-    images = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DD/CIFAR10/IPC10/results.pth')
-    for image in images:
-        print(image[0].shape, image[1].shape, image[2])
+    images, labels = DDDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DD/CIFAR10/IPC10/results.pth')
+    print(images.shape)
+    print(labels.shape)

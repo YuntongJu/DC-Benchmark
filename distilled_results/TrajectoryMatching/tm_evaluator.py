@@ -14,7 +14,8 @@ class CrossArchEvaluator(Evaluator):
         super().__init__(input_images, input_labels, test_dataset)
         self.config = config
 
-    def prepare_args(self):
+    @staticmethod
+    def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
 
@@ -84,7 +85,7 @@ class CrossArchEvaluator(Evaluator):
 
     
     def evaluate(self):
-        args = self.prepare_args()
+        args = CrossArchEvaluator.prepare_args()
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
@@ -95,13 +96,16 @@ class CrossArchEvaluator(Evaluator):
             per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
         return per_arch_accuracy
         
-def get_cifar10_testset():
+def get_cifar10_testset(args):
     channel = 3
     im_size = (32, 32)
     num_classes = 10
     mean = [0.4914, 0.4822, 0.4465]
     std = [0.2023, 0.1994, 0.2010]
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+    if args.zca:
+        transform = transforms.Compose([transforms.ToTensor()])
+    else:
+        transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
     dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
     return dst_test
 
@@ -113,11 +117,12 @@ if __name__ == '__main__':
     from distilled_results.TrajectoryMatching.tm_data_loader import TMDataLoader
     from torchvision import datasets, transforms
 
-    train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/images_best_ipc10.pt')
-    train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/labels_best_ipc10.pt')
+    train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/images_5000.pt')
+    train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/labels_5000.pt')
     print(train_image.shape)
     print(train_label.shape)
-    dst_test = get_cifar10_testset()
+    args = CrossArchEvaluator.prepare_args()
+    dst_test = get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate()
