@@ -35,7 +35,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
-        args.dsa = True
+        args.dsa = False
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
         args.device = 'cuda'
         return args
@@ -59,7 +59,8 @@ def get_cifar10_testset():
     num_classes = 10
     mean = [0.4914, 0.4822, 0.4465]
     std = [0.2023, 0.1994, 0.2010]
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+    # transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+    transform = transforms.Compose([transforms.ToTensor()])
     dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
     return dst_test
 
@@ -68,10 +69,10 @@ def get_cifar10_testset():
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    from distilled_results.DC.dc_data_loader import DCDataLoader
+    from distilled_results.DD.dd_data_loader import DDDataLoader
     from torchvision import datasets, transforms
 
-    train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DSA/CIFAR10/IPC10/res_DSA_CIFAR10_ConvNet_10ipc.pt')
+    train_image, train_label = DDDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DD/CIFAR10/IPC10/results.pth')
     print(train_image.shape)
     print(train_label.shape)
     dst_test = get_cifar10_testset()
