@@ -16,26 +16,27 @@ class CrossArchEvaluator(Evaluator):
 
     def prepare_args(self):
         parser = argparse.ArgumentParser(description='Parameter Processing')
-        parser.add_argument('--method', type=str, default='DM', help='DC/DSA/DM')
+        parser.add_argument('--method', type=str, default='DC', help='DC/DSA')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='ConvNet', help='model')
-        parser.add_argument('--ipc', type=int, default=1, help='image(s) per class')
+        parser.add_argument('--ipc', type=int, default=10, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
-        parser.add_argument('--Iteration', type=int, default=20000, help='training iterations')
-        parser.add_argument('--lr_img', type=float, default=1.0, help='learning rate for updating synthetic images')
+        parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
+        parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
         parser.add_argument('--batch_real', type=int, default=256, help='batch size for real data')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
-        parser.add_argument('--init', type=str, default='real', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
+        parser.add_argument('--init', type=str, default='noise', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate', help='differentiable Siamese augmentation strategy')
         parser.add_argument('--data_path', type=str, default='data', help='dataset path')
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
         args.dsa = True
+        args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
         args.device = 'cuda'
         return args
 
@@ -63,17 +64,18 @@ def get_cifar10_testset():
     return dst_test
 
 
-# Evaluation for Trajectory Matching
+# Evaluation for DSA
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    from distilled_results.TrajectoryMatching.trajectory_matching_data_loader import TMDataLoader
+    from distilled_results.KIP.kip_data_loader import KIPDataLoader
     from torchvision import datasets, transforms
 
-    train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/images_best_ipc10.pt')
-    train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/labels_best_ipc10.pt')
-    print(train_image.shape)
-    print(train_label.shape)
+    train_image = KIPDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/images.npy')
+    train_label = KIPDataLoader.load_labels('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/labels.npy')
+    print(train_label)
+    print(train_image.shape, train_image.dtype)
+    print(train_label.shape, train_label.dtype)
     dst_test = get_cifar10_testset()
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
