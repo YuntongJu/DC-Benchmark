@@ -38,7 +38,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--lr_img', type=float, default=1000, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_lr', type=float, default=1e-05, help='learning rate for updating... learning rate')
         parser.add_argument('--lr_teacher', type=float, default=0.01, help='initialization for synthetic learning rate')
-        parser.add_argument('--lr_net', type=float, default=0.01, help='initialization for synthetic learning rate')
+        parser.add_argument('--lr_net', type=float, default=0.03327, help='initialization for synthetic learning rate')
 
         parser.add_argument('--lr_init', type=float, default=0.01, help='how to init lr (alpha)')
 
@@ -81,6 +81,7 @@ class CrossArchEvaluator(Evaluator):
         args = parser.parse_args()
         args.dsa = True
         args.device = 'cuda'
+        args.zca = True
         return args
 
     
@@ -103,6 +104,8 @@ def get_cifar10_testset(args):
     mean = [0.4914, 0.4822, 0.4465]
     std = [0.2023, 0.1994, 0.2010]
     if args.zca:
+        print("---------------------------used ZCA")
+        print(args.lr_net)
         transform = transforms.Compose([transforms.ToTensor()])
     else:
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])

@@ -9,13 +9,13 @@ class KIPDataLoader:
 
     @staticmethod
     def load_labels(path_to_pt_file):
-        return torch.from_numpy(np.load(path_to_pt_file))
+        return torch.argmax(torch.from_numpy(np.load(path_to_pt_file)), dim=1)
 
 
 if __name__ == '__main__':
     
     images = KIPDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/images.npy')
-    labels = KIPDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/labels.npy')
+    labels = KIPDataLoader.load_labels('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/labels.npy')
     print(images.shape)
     print(labels.shape)
     print(labels)
