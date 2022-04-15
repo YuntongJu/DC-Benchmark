@@ -5,6 +5,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
+import tqdm
+import kornia as K
+from torch.utils.data import Dataset
+
 
 class TensorDataset(Dataset):
     def __init__(self, images, labels): # images: n x c x h x w tensor
@@ -43,8 +47,8 @@ class EvaluatorUtils:
         lr = float(args.lr_net)
         Epoch = int(args.epoch_eval_train)
         lr_schedule = [Epoch//2+1]
-        # optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
-        optimizer = torch.optim.Adam(net.parameters())
+        optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
+        # optimizer = torch.optim.Adam(net.parameters())
         criterion = nn.CrossEntropyLoss().to(args.device)
 
         dst_train = TensorDataset(images_train, labels_train)
@@ -55,7 +59,7 @@ class EvaluatorUtils:
             loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True)
             if ep in lr_schedule:
                 lr *= 0.1
-                # optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
+                optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
                 # optimizer = torch.optim.Adam(net.parameters(), lr=lr)
 
         time_train = time.time() - start
@@ -351,4 +355,53 @@ class EvaluatorUtils:
         mask = torch.ones(x.size(0), x.size(2), x.size(3), dtype=x.dtype, device=x.device)
         mask[grid_batch, grid_x, grid_y] = 0
         x = x * mask.unsqueeze(1)
-        return x   
+        return x
+
+    @staticmethod
+    def get_cifar10_testset(args):
+        channel = 3
+        im_size = (32, 32)
+        num_classes = 10
+        mean = [0.4914, 0.4822, 0.4465]
+        std = [0.2023, 0.1994, 0.2010]
+        if args.zca:
+            print("---------------------------used ZCA")
+            print(args.lr_net)
+            transform = transforms.Compose([transforms.ToTensor()])
+        else:
+            transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+
+        dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
+        dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+
+        if args.zca:
+            images = []
+            labels = []
+            print("Train ZCA")
+            for i in tqdm.tqdm(range(len(dst_train))):
+                im, lab = dst_train[i]
+                images.append(im)
+                labels.append(lab)
+            images = torch.stack(images, dim=0).to(args.device)
+            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+            zca = K.enhance.ZCAWhitening(eps=0.1, compute_inv=True)
+            zca.fit(images)
+            zca_images = zca(images).to("cpu")
+            dst_train = TensorDataset(zca_images, labels)
+
+            images = []
+            labels = []
+            print("Test ZCA")
+            for i in tqdm.tqdm(range(len(dst_test))):
+                im, lab = dst_test[i]
+                images.append(im)
+                labels.append(lab)
+            images = torch.stack(images, dim=0).to(args.device)
+            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+
+            zca_images = zca(images).to("cpu")
+            dst_test = TensorDataset(zca_images, labels)
+
+            args.zca_trans = zca
+
+        return dst_test

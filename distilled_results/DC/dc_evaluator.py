@@ -14,7 +14,8 @@ class CrossArchEvaluator(Evaluator):
         super().__init__(input_images, input_labels, test_dataset)
         self.config = config
 
-    def prepare_args(self):
+    @staticmethod
+    def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
         parser.add_argument('--method', type=str, default='DC', help='DC/DSA')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
@@ -27,6 +28,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
+        parser.add_argument('--zca', type=bool, default=False, help='learning rate for updating network parameters')
         parser.add_argument('--batch_real', type=int, default=256, help='batch size for real data')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
         parser.add_argument('--init', type=str, default='noise', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
@@ -54,28 +56,19 @@ class CrossArchEvaluator(Evaluator):
             per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
         return per_arch_accuracy
         
-def get_cifar10_testset():
-    channel = 3
-    im_size = (32, 32)
-    num_classes = 10
-    mean = [0.4914, 0.4822, 0.4465]
-    std = [0.2023, 0.1994, 0.2010]
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
-    dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
-    return dst_test
-
 
 # Evaluation for DC
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.DC.dc_data_loader import DCDataLoader
-    from torchvision import datasets, transforms
 
     train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
     print(train_image.shape)
     print(train_label.shape)
-    dst_test = get_cifar10_testset()
+    args = CrossArchEvaluator.prepare_args()
+    args.zca = False
+    dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate()
