@@ -35,6 +35,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--batch_real', type=int, default=256, help='batch size for real data')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
         parser.add_argument('--init', type=str, default='noise', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
+        parser.add_argument('--optimizer', type=str, default='sgd', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate', help='differentiable Siamese augmentation strategy')
         parser.add_argument('--data_path', type=str, default='data', help='dataset path')
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
@@ -66,7 +67,8 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
-    args.dsa = True
+    args.dsa = False
+    args.optimizer = 'adam'
     train_image, train_label = RandomDataLoader.load_data(args)
     print(train_image.shape)
     print(train_label.shape)
