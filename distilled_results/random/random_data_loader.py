@@ -10,6 +10,9 @@ class RandomDataLoader:
 
     @staticmethod
     def load_data(args):
+        # set random seed
+        #seeting seed to 9 gets us 0.3368 accuracy.
+
         transform = transforms.Compose([transforms.ToTensor()])
         dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
         # dst_train, _ = EvaluatorUtils.get_cifar10_testset(args)
@@ -27,7 +30,7 @@ class RandomDataLoader:
         labels_all = torch.tensor(labels_all, dtype=torch.long, device=args.device)
 
         def get_images(c, n): # get random n images from class c
-                idx_shuffle = np.random.permutation(indices_class[c])[:n]
+                idx_shuffle = np.random.RandomState(seed=42).permutation(indices_class[c])[:n]
                 return images_all[idx_shuffle]
 
         sampled_images = []
