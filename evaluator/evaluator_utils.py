@@ -375,7 +375,6 @@ class EvaluatorUtils:
         std = [0.2023, 0.1994, 0.2010]
         if args.zca:
             print("---------------------------used ZCA")
-            print(args.lr_net)
             transform = transforms.Compose([transforms.ToTensor()])
         elif args.normalize_data:
             transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
