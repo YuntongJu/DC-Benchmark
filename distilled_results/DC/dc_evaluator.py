@@ -24,9 +24,11 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
+        parser.add_argument('--normalize_data', type=bool, default=True, help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
+        parser.add_argument('--optimizer', type=str, default="sgd", help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
         parser.add_argument('--zca', type=bool, default=False, help='learning rate for updating network parameters')
         parser.add_argument('--batch_real', type=int, default=256, help='batch size for real data')
@@ -44,8 +46,7 @@ class CrossArchEvaluator(Evaluator):
         return args
 
     
-    def evaluate(self):
-        args = self.prepare_args()
+    def evaluate(self, args):
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
@@ -63,12 +64,15 @@ if __name__ == '__main__':
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.DC.dc_data_loader import DCDataLoader
 
-    train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
+    # train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
+    train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt')
     print(train_image.shape)
     print(train_label.shape)
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
+    args.dsa = True
+    args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
-    evaluator.evaluate()
+    evaluator.evaluate(args)

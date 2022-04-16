@@ -35,9 +35,9 @@ class RandomDataLoader:
 
         sampled_images = []
         sampled_labels = []
-        for i in range(10):
-            sampled_images.append(get_images(i, 10))
-            sampled_labels.append(torch.ones(10) * i)
+        for i in range(num_classes):
+            sampled_images.append(get_images(i, args.ipc))
+            sampled_labels.append(torch.ones(args.ipc) * i)
         sampled_images = torch.cat(sampled_images)
         sampled_labels = torch.cat(sampled_labels)
         return sampled_images, sampled_labels
