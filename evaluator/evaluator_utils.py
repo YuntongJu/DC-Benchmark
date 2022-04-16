@@ -368,8 +368,10 @@ class EvaluatorUtils:
             print("---------------------------used ZCA")
             print(args.lr_net)
             transform = transforms.Compose([transforms.ToTensor()])
-        else:
+        elif args.normalize_data:
             transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+        else:
+            transform = transforms.Compose([transforms.ToTensor()])
 
         dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
         dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
