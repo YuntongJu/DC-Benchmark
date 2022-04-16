@@ -84,8 +84,9 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--max_experts', type=int, default=None, help='number of experts to read per file (leave as None unless doing ablations)')
 
         parser.add_argument('--force_save', action='store_true', help='this will save images for 50ipc')
-
         args = parser.parse_args()
+        args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
+
         args.dsa = True
         args.device = 'cuda'
         return args
