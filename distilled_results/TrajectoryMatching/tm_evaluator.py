@@ -49,6 +49,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--batch_real', type=int, default=256, help='batch size for real data')
         parser.add_argument('--batch_syn', type=int, default=None, help='should only use this if you run out of VRAM')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
+        parser.add_argument('--normalize_data', type=bool, default=False, help='batch size for training networks')
 
         parser.add_argument('--pix_init', type=str, default='real', choices=["noise", "real"],
                             help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
@@ -57,6 +58,8 @@ class CrossArchEvaluator(Evaluator):
                             help='whether to use differentiable Siamese augmentation.')
 
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate',
+                            help='differentiable Siamese augmentation strategy')
+        parser.add_argument('--optimizer', type=str, default='sgd',
                             help='differentiable Siamese augmentation strategy')
 
         parser.add_argument('--data_path', type=str, default='data', help='dataset path')
@@ -85,12 +88,10 @@ class CrossArchEvaluator(Evaluator):
         args = parser.parse_args()
         args.dsa = True
         args.device = 'cuda'
-        args.zca = True
         return args
 
     
-    def evaluate(self):
-        args = CrossArchEvaluator.prepare_args()
+    def evaluate(self, args):
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
@@ -107,13 +108,17 @@ if __name__ == '__main__':
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.TrajectoryMatching.tm_data_loader import TMDataLoader
 
-    train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/images_5000.pt')
-    train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/labels_5000.pt')
+    # train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/images_5000.pt')
+    # train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/labels_5000.pt')
+    train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC50/images_3000.pt')
+    train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC50/labels_3000.pt')
     print(train_image.shape)
     print(train_label.shape)
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
+    args.dsa = True
+    args.normalize_data = True
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
-    evaluator.evaluate()
+    evaluator.evaluate(args)
