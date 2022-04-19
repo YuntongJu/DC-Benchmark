@@ -72,15 +72,20 @@ if __name__ == '__main__':
     args = CrossArchEvaluator.prepare_args()
     args.dsa = True
     args.zca = False
-    args.optimizer = 'adam'
+    # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     avg_result = 0.0
     num_eval = 1
+    model_name = 'alexnet'
     for i in range(num_eval):
-        evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
+        evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[model_name]})
         result = evaluator.evaluate(args)
-        avg_result += result['convnet']
+        avg_result += result[model_name]
+    # for i in range(num_eval):
+    #     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
+    #     result = evaluator.evaluate(args)
+    #     avg_result += result['convnet']
     print("average result for ", num_eval, avg_result / num_eval)
 
     

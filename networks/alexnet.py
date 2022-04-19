@@ -1,3 +1,5 @@
+import torch.nn as nn
+
 ''' AlexNet '''
 class AlexNet(nn.Module):
     def __init__(self, channel, num_classes):

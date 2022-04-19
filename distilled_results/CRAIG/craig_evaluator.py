@@ -74,7 +74,7 @@ if __name__ == '__main__':
     from torchvision import datasets
 
     transform = transforms.Compose([transforms.ToTensor()])
-    cifar10 = datasets.CIFAR10('data', train=True, download=True, transform=transform)
+    cifar10 = datasets.CIFAR100('data', train=True, download=True, transform=transform)
 
     sampled_images = []
     sampled_labels = []
