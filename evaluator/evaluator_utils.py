@@ -53,7 +53,10 @@ class EvaluatorUtils:
         else:
             print("using sgd optimizer")
             optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
-        criterion = nn.CrossEntropyLoss().to(args.device)
+        if hasattr(args, 'sample_weights'):
+            criterion = nn.CrossEntropyLoss(args.sample_weights).to(args.device)
+        else:
+            criterion = nn.CrossEntropyLoss().to(args.device)
 
         dst_train = TensorDataset(images_train, labels_train)
         trainloader = torch.utils.data.DataLoader(dst_train, batch_size=args.batch_train, shuffle=True, num_workers=0)

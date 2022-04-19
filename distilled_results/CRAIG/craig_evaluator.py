@@ -64,15 +64,17 @@ class CrossArchEvaluator(Evaluator):
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    path = ''
+    path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/CRAIG/cifar10_sgd_moment_0.9_resnet20_0.01_grd_w_warm_mile_start_0_lag_1_subset.npz'
     result = np.load(path)
     last_round = result['subset'][0][-1].astype(int)
+    weights = result['weights'][0][-1]
+    print(weights.shape)
 
-    import torchvision.utils.transforms as transforms
-    import torch.utils.data as datasets
+    import torchvision.transforms as transforms
+    from torchvision import datasets
 
     transform = transforms.Compose([transforms.ToTensor()])
-    dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
+    cifar10 = datasets.CIFAR10('data', train=True, download=True, transform=transform)
 
     sampled_images = []
     sampled_labels = []
@@ -80,15 +82,16 @@ if __name__ == '__main__':
         image, label = cifar10[index]
         sampled_images.append(image)
         sampled_labels.append(label)
-    train_image = torch.cat(sampled_images)
-    train_label = torch.cat(sampled_labels)
+    train_image = torch.cat(sampled_images).reshape(-1, 3, 32, 32)
+    train_label = torch.from_numpy(np.array(sampled_labels))
+    # print(train_label)
 
 
     args = CrossArchEvaluator.prepare_args()
+    # args.sample_weights = torch.from_numpy(weights)
     args.zca = False
     args.dsa = False
-    args.optimizer = 'adam'
-    train_image, train_label = RandomDataLoader.load_data(args)
+    # args.optimizer = 'adam'
     print(train_image.shape)
     print(train_label.shape)
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
