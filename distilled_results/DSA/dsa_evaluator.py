@@ -69,9 +69,9 @@ if __name__ == '__main__':
     print(train_image.shape)
     print(train_label.shape)
     args.zca = False
-    args.dsa = False
-    args.optimizer = 'adam'
+    args.dsa = True
+    # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['alexnet']})
     evaluator.evaluate(args)
