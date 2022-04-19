@@ -64,7 +64,7 @@ class EvaluatorUtils:
 
         start = time.time()
         for ep in range(Epoch+1):
-            loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True)
+            loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True, ep=ep)
             if ep in lr_schedule:
                 lr *= 0.1
                 if args.optimizer == 'adam':
@@ -77,13 +77,13 @@ class EvaluatorUtils:
 
         time_train = time.time() - start
         criterion = nn.CrossEntropyLoss().to(args.device)
-        loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False)
+        loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0)
         print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
 
         return net, acc_train, acc_test
 
     @staticmethod
-    def epoch(mode, dataloader, net, optimizer, criterion, args, aug):
+    def epoch(mode, dataloader, net, optimizer, criterion, args, aug, ep):
         loss_avg, acc_avg, num_exp = 0, 0, 0
         net = net.to(args.device)
         criterion = criterion.to(args.device)
@@ -120,7 +120,7 @@ class EvaluatorUtils:
 
         loss_avg /= num_exp
         acc_avg /= num_exp
-
+        print(mode, " epoch:", ep, " , accuracy is:", acc_avg)
         return loss_avg, acc_avg
 
     @staticmethod
