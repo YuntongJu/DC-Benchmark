@@ -1,3 +1,4 @@
+from multiprocessing import reduction
 import numpy as np
 import time
 import torch
@@ -54,7 +55,7 @@ class EvaluatorUtils:
             print("using sgd optimizer")
             optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
         if hasattr(args, 'sample_weights'):
-            criterion = nn.CrossEntropyLoss(args.sample_weights).to(args.device)
+            criterion = nn.CrossEntropyLoss(reduction='none').to(args.device)
         else:
             criterion = nn.CrossEntropyLoss().to(args.device)
 
@@ -75,6 +76,7 @@ class EvaluatorUtils:
                     optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
 
         time_train = time.time() - start
+        criterion = nn.CrossEntropyLoss().to(args.device)
         loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False)
         print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
 
@@ -103,6 +105,8 @@ class EvaluatorUtils:
 
             output = net(img)
             loss = criterion(output, lab)
+            if mode =='train' and hasattr(args, 'sample_weights'):
+                loss = (loss * args.sample_weights).mean()
             acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), lab.cpu().data.numpy()))
 
             loss_avg += loss.item()*n_b

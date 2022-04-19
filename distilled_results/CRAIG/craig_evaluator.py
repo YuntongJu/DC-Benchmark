@@ -34,7 +34,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
         parser.add_argument('--batch_real', type=int, default=256, help='batch size for real data')
-        parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
+        parser.add_argument('--batch_train', type=int, default=1000, help='batch size for training networks')
         parser.add_argument('--init', type=str, default='noise', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
         parser.add_argument('--optimizer', type=str, default='sgd', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate', help='differentiable Siamese augmentation strategy')
@@ -88,9 +88,9 @@ if __name__ == '__main__':
 
 
     args = CrossArchEvaluator.prepare_args()
-    # args.sample_weights = torch.from_numpy(weights)
+    args.sample_weights = torch.from_numpy(weights).cuda()
     args.zca = False
-    args.dsa = False
+    args.dsa = True
     # args.optimizer = 'adam'
     print(train_image.shape)
     print(train_label.shape)
