@@ -6,7 +6,7 @@ import numpy as np
 class KMeansDataLoader:
 
     @staticmethod
-    def load_data():
+    def load_data(ipc):
         transform = transforms.Compose([transforms.ToTensor()])
         # transform = transforms.Compose([])
         dataset = datasets.CIFAR10('data', train=True, download=True, transform=transform)
@@ -21,7 +21,7 @@ class KMeansDataLoader:
         for key in data_map:
             X = np.array(data_map[key])
             print(X.shape)
-            kmeans = KMeans(n_clusters=10, random_state=0).fit(X)
+            kmeans = KMeans(n_clusters=ipc, random_state=0).fit(X)
             for center in kmeans.cluster_centers_:
                 images.append(torch.unsqueeze(torch.from_numpy(center).resize(3, 32, 32), dim=0)) 
                 labels.append(key)
