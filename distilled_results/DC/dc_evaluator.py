@@ -61,6 +61,8 @@ class CrossArchEvaluator(Evaluator):
 # Evaluation for DC
 if __name__ == '__main__':
     import sys
+    import copy
+    import torchvision.transforms as transforms
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.DC.dc_data_loader import DCDataLoader
 
@@ -68,6 +70,25 @@ if __name__ == '__main__':
     train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt')
     print(train_image.shape)
     print(train_label.shape)
+    print(train_image.max())
+    print(train_image.min())
+    # image_syn_vis = copy.deepcopy(train_image.detach().cpu())
+    # mean = [0.4914, 0.4822, 0.4465]
+    # std = [0.2023, 0.1994, 0.2010]
+    # for ch in range(3):
+    #     image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
+    #     image_syn_vis[image_syn_vis<0] = 0.0
+    #     image_syn_vis[image_syn_vis>1] = 1.0
+    # image_syn_vis = image_syn_vis * 255
+    # print(image_syn_vis.max())
+    # print(image_syn_vis.min())
+    # data_transforms = transforms.Compose([transforms.AutoAugment()])
+    # train_image = data_transforms(image_syn_vis.to(torch.uint8))
+    # image_syn_vis = image_syn_vis / 255.0
+    # for ch in range(3):
+    #     image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
+    # print(image_syn_vis.max())
+    # print(image_syn_vis.min())
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
     args.dsa = True

@@ -34,7 +34,7 @@ class RandomDataLoader:
             std = [0.2023, 0.1994, 0.2010]
             transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
         else:
-            transform = transforms.Compose([transforms.ToTensor()])
+            transform = transforms.Compose([transforms.AutoAugment(), transforms.ToTensor()])
         dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
 
         if args.zca:

@@ -28,7 +28,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--normalize_data', type=bool, default=False, help='whether to normalize the data') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
-        parser.add_argument('--epoch_eval_train', type=int, default=30, help='epochs to train a model with synthetic data')
+        parser.add_argument('--epoch_eval_train', type=int, default=50, help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
@@ -49,7 +49,7 @@ class CrossArchEvaluator(Evaluator):
     def evaluate(self, args):
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
-            args.epoch_eval_train = 20
+            args.epoch_eval_train = 50
             args.dc_aug_param = None
         if args.zca:
             args.epoch_eval_train = 20
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
-    args.dsa = True
+    args.dsa = False
     # args.optimizer = 'adam'
     train_image, train_label = WholeDataLoader.load_data('cifar10')
     print(train_image.shape)
@@ -75,5 +75,5 @@ if __name__ == '__main__':
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     print("test set length:", len(dst_test))
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['alexnet']})
     evaluator.evaluate(args)
