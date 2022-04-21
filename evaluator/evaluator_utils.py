@@ -98,11 +98,13 @@ class EvaluatorUtils:
             if aug:
                 if args.dsa:
                     img = EvaluatorUtils.DiffAugment(img, args.dsa_strategy, param=args.dsa_param)
+                elif hasattr(args, 'autoaug') and args.autoaug:
+                    img = EvaluatorUtils.autoaug(img)
                 else:
                     img = EvaluatorUtils.augment(img, args.dc_aug_param, device=args.device)
             lab = datum[1].long().to(args.device)
             n_b = lab.shape[0]
-
+            # print("-----------", mode, img.max(), img.min())
             output = net(img)
             loss = criterion(output, lab)
             if mode =='train' and hasattr(args, 'sample_weights'):
@@ -122,6 +124,27 @@ class EvaluatorUtils:
         acc_avg /= num_exp
         print(mode, " epoch:", ep, " , accuracy is:", acc_avg)
         return loss_avg, acc_avg
+
+    @staticmethod
+    def autoaug(images):
+        image_syn_vis = images
+        mean = [0.4914, 0.4822, 0.4465]
+        std = [0.2023, 0.1994, 0.2010]
+        for ch in range(3):
+            image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
+        image_syn_vis[image_syn_vis<0] = 0.0
+        image_syn_vis[image_syn_vis>1] = 1.0
+        image_syn_vis = image_syn_vis * 255
+        # print(image_syn_vis.max())
+        # print(image_syn_vis.min())
+        data_transforms = transforms.Compose([transforms.AutoAugment()])
+        image_syn_vis = data_transforms(image_syn_vis.to(torch.uint8))
+        image_syn_vis = image_syn_vis / 255.0
+        for ch in range(3):
+            image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
+        # print(image_syn_vis.max())
+        # print(image_syn_vis.min())
+        return image_syn_vis
 
     @staticmethod
     def augment(images, dc_aug_param, device):

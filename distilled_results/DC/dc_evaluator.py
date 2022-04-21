@@ -25,7 +25,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
         parser.add_argument('--normalize_data', type=bool, default=True, help='the number of evaluating randomly initialized models')
-        parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
+        parser.add_argument('--epoch_eval_train', type=int, default=100, help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--optimizer', type=str, default="sgd", help='learning rate for updating synthetic images')
@@ -72,28 +72,16 @@ if __name__ == '__main__':
     print(train_label.shape)
     print(train_image.max())
     print(train_image.min())
-    # image_syn_vis = copy.deepcopy(train_image.detach().cpu())
-    # mean = [0.4914, 0.4822, 0.4465]
-    # std = [0.2023, 0.1994, 0.2010]
-    # for ch in range(3):
-    #     image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
-    #     image_syn_vis[image_syn_vis<0] = 0.0
-    #     image_syn_vis[image_syn_vis>1] = 1.0
-    # image_syn_vis = image_syn_vis * 255
-    # print(image_syn_vis.max())
-    # print(image_syn_vis.min())
-    # data_transforms = transforms.Compose([transforms.AutoAugment()])
-    # train_image = data_transforms(image_syn_vis.to(torch.uint8))
-    # image_syn_vis = image_syn_vis / 255.0
-    # for ch in range(3):
-    #     image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
-    # print(image_syn_vis.max())
-    # print(image_syn_vis.min())
+
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
-    args.dsa = True
-    args.optimizer = 'sgd'
+    args.dsa = False
+    args.epoch_eval_train = 300
+    args.normalize_data = True
+    # args.optimizer = 'sgd'
+    args.autoaug = True
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
+
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate(args)
