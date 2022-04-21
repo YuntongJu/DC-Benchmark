@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
+import torchvision
 import tqdm
 import kornia as K
 from torch.utils.data import Dataset
@@ -84,6 +85,7 @@ class EvaluatorUtils:
 
     @staticmethod
     def epoch(mode, dataloader, net, optimizer, criterion, args, aug, ep):
+        print("mode:", mode)
         loss_avg, acc_avg, num_exp = 0, 0, 0
         net = net.to(args.device)
         criterion = criterion.to(args.device)
@@ -97,9 +99,14 @@ class EvaluatorUtils:
             img = datum[0].float().to(args.device)
             if aug:
                 if args.dsa:
+                    # import pdb
+                    # pdb.set_trace()
+                    if i_batch == 0:
+                        print("using dsa")
                     img = EvaluatorUtils.DiffAugment(img, args.dsa_strategy, param=args.dsa_param)
                 elif hasattr(args, 'autoaug') and args.autoaug:
-                    print("using autoaug")
+                    if i_batch == 0:
+                        print("using autoaug")
                     img = EvaluatorUtils.autoaug(img)
                 else:
                     img = EvaluatorUtils.augment(img, args.dc_aug_param, device=args.device)
@@ -135,10 +142,12 @@ class EvaluatorUtils:
         #     image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
         # image_syn_vis[image_syn_vis<0] = 0.0
         # image_syn_vis[image_syn_vis>1] = 1.0
+
         image_syn_vis = image_syn_vis * 255
-        data_transforms = transforms.Compose([transforms.AutoAugment()])
+        data_transforms = transforms.Compose([transforms.AutoAugment(policy=torchvision.transforms.AutoAugmentPolicy.CIFAR10)])
         image_syn_vis = data_transforms(image_syn_vis.to(torch.uint8))
         image_syn_vis = image_syn_vis / 255.0
+
         # for ch in range(3):
         #     image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
         return image_syn_vis

@@ -41,7 +41,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
-        args.dsa = True
+        args.dsa = False
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
         args.device = 'cuda'
         return args
@@ -68,6 +68,7 @@ if __name__ == '__main__':
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
     args.dsa = False
+    args.autoaug = True
     # args.optimizer = 'adam'
     train_image, train_label = WholeDataLoader.load_data('cifar10')
     print(train_image.shape)
@@ -75,5 +76,5 @@ if __name__ == '__main__':
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     print("test set length:", len(dst_test))
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['alexnet']})
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate(args)
