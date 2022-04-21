@@ -137,3 +137,5 @@ evaluator/data/
 
 # DS_Store
 .DS_Store
+#temp file
+*.py.swp

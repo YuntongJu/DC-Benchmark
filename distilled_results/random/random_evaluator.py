@@ -69,6 +69,7 @@ if __name__ == '__main__':
     args.zca = False
     args.dsa = False
     args.normalize_data = False
+    args.autoaug = True
     # args.optimizer = 'adam'
     train_image, train_label = RandomDataLoader.load_data(args)
     print(train_image.shape)

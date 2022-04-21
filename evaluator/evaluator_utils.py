@@ -129,18 +129,18 @@ class EvaluatorUtils:
     @staticmethod
     def autoaug(images):
         image_syn_vis = images
-        mean = [0.4914, 0.4822, 0.4465]
-        std = [0.2023, 0.1994, 0.2010]
-        for ch in range(3):
-            image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
-        image_syn_vis[image_syn_vis<0] = 0.0
-        image_syn_vis[image_syn_vis>1] = 1.0
-        # image_syn_vis = image_syn_vis * 255
-        # data_transforms = transforms.Compose([transforms.AutoAugment()])
-        # image_syn_vis = data_transforms(image_syn_vis.to(torch.uint8))
-        # image_syn_vis = image_syn_vis / 255.0
-        for ch in range(3):
-            image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
+        # mean = [0.4914, 0.4822, 0.4465]
+        # std = [0.2023, 0.1994, 0.2010]
+        # for ch in range(3):
+        #     image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
+        # image_syn_vis[image_syn_vis<0] = 0.0
+        # image_syn_vis[image_syn_vis>1] = 1.0
+        image_syn_vis = image_syn_vis * 255
+        data_transforms = transforms.Compose([transforms.AutoAugment()])
+        image_syn_vis = data_transforms(image_syn_vis.to(torch.uint8))
+        image_syn_vis = image_syn_vis / 255.0
+        # for ch in range(3):
+        #     image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
         return image_syn_vis
 
     @staticmethod
