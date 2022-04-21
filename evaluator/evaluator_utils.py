@@ -99,6 +99,7 @@ class EvaluatorUtils:
                 if args.dsa:
                     img = EvaluatorUtils.DiffAugment(img, args.dsa_strategy, param=args.dsa_param)
                 elif hasattr(args, 'autoaug') and args.autoaug:
+                    print("using autoaug")
                     img = EvaluatorUtils.autoaug(img)
                 else:
                     img = EvaluatorUtils.augment(img, args.dc_aug_param, device=args.device)
@@ -134,16 +135,12 @@ class EvaluatorUtils:
             image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
         image_syn_vis[image_syn_vis<0] = 0.0
         image_syn_vis[image_syn_vis>1] = 1.0
-        image_syn_vis = image_syn_vis * 255
-        # print(image_syn_vis.max())
-        # print(image_syn_vis.min())
-        data_transforms = transforms.Compose([transforms.AutoAugment()])
-        image_syn_vis = data_transforms(image_syn_vis.to(torch.uint8))
-        image_syn_vis = image_syn_vis / 255.0
+        # image_syn_vis = image_syn_vis * 255
+        # data_transforms = transforms.Compose([transforms.AutoAugment()])
+        # image_syn_vis = data_transforms(image_syn_vis.to(torch.uint8))
+        # image_syn_vis = image_syn_vis / 255.0
         for ch in range(3):
             image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
-        # print(image_syn_vis.max())
-        # print(image_syn_vis.min())
         return image_syn_vis
 
     @staticmethod

@@ -91,6 +91,8 @@ if __name__ == '__main__':
     # print(image_syn_vis.min())
     args.zca = False
     args.dsa = False
+    args.autoaug = True
+    args.epoch_eval_train = 300
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
