@@ -3,6 +3,7 @@ sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 
 from networks.convnet import ConvNet
 from networks.alexnet import AlexNet
+from networks.resnet import ResNet, ResNet18
 import torchvision.models as models
 class NetworkUtils:
 
@@ -16,5 +17,5 @@ class NetworkUtils:
         elif model_name == 'alexnet':
             return AlexNet(channel, num_classes)
         elif model_name == 'resnet18':
-            return models.resnet18(pretrained=False)
+            return ResNet18(channel=channel, num_classes=num_classes)
         return None

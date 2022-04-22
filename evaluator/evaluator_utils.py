@@ -68,9 +68,9 @@ class EvaluatorUtils:
         criterion = nn.CrossEntropyLoss().to(args.device)
         for ep in range(Epoch+1):
             loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True, ep=ep)
-            loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0)
-            max_acc_test = max(max_acc_test, acc_test)
-            print("max accuracy:", max_acc_test)
+            # loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0)
+            # max_acc_test = max(max_acc_test, acc_test)
+            # print("max accuracy:", max_acc_test)
             if ep in lr_schedule:
                 lr *= 0.1
                 if args.optimizer == 'adam':
@@ -80,7 +80,7 @@ class EvaluatorUtils:
                 else:
                     print("using sgd optimizer")
                     optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
-        print("max accuracy:", max_acc_test)
+        # print("max accuracy:", max_acc_test)
         time_train = time.time() - start
         # criterion = nn.CrossEntropyLoss().to(args.device)
         loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0)
