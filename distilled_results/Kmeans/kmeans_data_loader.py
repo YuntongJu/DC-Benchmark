@@ -44,8 +44,13 @@ class KMeansDataLoader:
         return args
 
     @staticmethod
-    def load_data(ipc, use_embedding=True):
-        transform = transforms.Compose([transforms.ToTensor()])
+    def load_data(ipc, use_embedding=True, normalize_data = False):
+        mean = [0.4914, 0.4822, 0.4465]
+        std = [0.2023, 0.1994, 0.2010]
+        if normalize_data:
+            transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+        else:
+            transform = transforms.Compose([transforms.ToTensor()])
         ds_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
         ds_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
         if use_embedding:
@@ -62,6 +67,7 @@ class KMeansDataLoader:
 
             images_all = torch.cat(images_all, dim=0)
             labels_all = torch.tensor(labels_all, dtype=torch.long)
+            # model_name = 'resnet18'
             model_name = 'convnet'
             net = NetworkUtils.create_network(model_name).to(args.device)
             # if os.path.exists('data/' + model_name):

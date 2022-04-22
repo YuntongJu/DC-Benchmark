@@ -67,14 +67,14 @@ if __name__ == '__main__':
     import copy
 
     args = CrossArchEvaluator.prepare_args()
-    train_image, train_label = KMeansDataLoader.load_data(args.ipc)
+    train_image, train_label = KMeansDataLoader.load_data(args.ipc, use_embedding=True, normalize_data=True)
     print(train_image.shape)
     print(train_label.shape)
     print(train_image.max())
     print(train_image.min())
     args.zca = False
-    args.dsa = False
-    args.normalize_data = False
+    args.dsa = True
+    args.normalize_data = True
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
