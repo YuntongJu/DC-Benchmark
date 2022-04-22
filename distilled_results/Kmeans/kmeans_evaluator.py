@@ -67,7 +67,7 @@ if __name__ == '__main__':
     import copy
 
     args = CrossArchEvaluator.prepare_args()
-    train_image, train_label = KMeansDataLoader.load_data(50)
+    train_image, train_label = KMeansDataLoader.load_data(args.ipc)
     print(train_image.shape)
     print(train_label.shape)
     print(train_image.max())

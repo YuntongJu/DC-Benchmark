@@ -4,8 +4,10 @@ sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 import torch
 from torchvision import datasets, transforms
 from sklearn.cluster import KMeans
+from sklearn_extra.cluster import KMedoids
 import numpy as np
 import argparse
+import os
 
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
@@ -49,15 +51,25 @@ class KMeansDataLoader:
         if use_embedding:
             print("use embedding")
             args = KMeansDataLoader.prepare_args()
-            args.epoch_eval_train = 50
+            args.epoch_eval_train = 0
+            args.dsa = False
+            if args.dsa:
+                args.dsa_param = EvaluatorUtils.ParamDiffAug()
+                args.epoch_eval_train = 1000
+                args.dc_aug_param = None
             images_all = [torch.unsqueeze(ds_train[i][0], dim=0) for i in range(len(ds_train))]
             labels_all = [ds_train[i][1] for i in range(len(ds_train))]
 
             images_all = torch.cat(images_all, dim=0)
             labels_all = torch.tensor(labels_all, dtype=torch.long)
-            model = NetworkUtils.create_network('convnet').to(args.device)
+            model_name = 'convnet'
+            net = NetworkUtils.create_network(model_name).to(args.device)
+            # if os.path.exists('data/' + model_name):
+            #     net.load_state_dict(torch.load('data/' + model_name))
+            # else:
             testloader = torch.utils.data.DataLoader(ds_test, batch_size=256, shuffle=False, num_workers=0)
-            net, acc_train, acc_test = EvaluatorUtils.evaluate_synset(0, model, images_all, labels_all, testloader, args)
+            net, acc_train, acc_test = EvaluatorUtils.evaluate_synset(0, net, images_all, labels_all, testloader, args)
+            # torch.save(net.state_dict(), 'data/' + model_name)
 
         feature_map = {}
         data_map = {}
@@ -79,6 +91,7 @@ class KMeansDataLoader:
             # print(X.shape)
             # find the kmeans center
             kmeans = KMeans(n_clusters=ipc, random_state=0, init='k-means++').fit(X)
+            # kmeans = KMedoids(n_clusters=ipc, random_state=0, init='k-medoids++').fit(X)
             # find the samples that are closest to the kmeans center
             # print(kmeans.cluster_centers_.shape)
             dist = (kmeans.cluster_centers_[:, np.newaxis] - X)
