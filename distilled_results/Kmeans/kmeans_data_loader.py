@@ -56,7 +56,7 @@ class KMeansDataLoader:
         if use_embedding:
             print("use embedding")
             args = KMeansDataLoader.prepare_args()
-            args.epoch_eval_train = 50
+            args.epoch_eval_train = 0
             args.dsa = False
             if args.dsa:
                 args.dsa_param = EvaluatorUtils.ParamDiffAug()
@@ -67,8 +67,8 @@ class KMeansDataLoader:
 
             images_all = torch.cat(images_all, dim=0)
             labels_all = torch.tensor(labels_all, dtype=torch.long)
-            model_name = 'resnet18'
-            # model_name = 'convnet'
+            # model_name = 'resnet18'
+            model_name = 'convnet'
             net = NetworkUtils.create_network(model_name).to(args.device)
             # if os.path.exists('data/' + model_name):
             #     net.load_state_dict(torch.load('data/' + model_name))

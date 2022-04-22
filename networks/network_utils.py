@@ -14,6 +14,9 @@ class NetworkUtils:
         if model_name == 'convnet':
             net_width, net_depth, net_act, net_norm, net_pooling = 128, 3, 'relu', 'instancenorm', 'avgpooling'
             return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = (32,32))
+        if model_name == 'convnet4':
+            net_width, net_depth, net_act, net_norm, net_pooling = 128, 4, 'relu', 'instancenorm', 'avgpooling'
+            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = (32,32))
         elif model_name == 'alexnet':
             return AlexNet(channel, num_classes)
         elif model_name == 'resnet18':
