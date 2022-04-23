@@ -101,6 +101,8 @@ class EvaluatorUtils:
             net.eval()
 
         for i_batch, datum in enumerate(dataloader):
+            # import pdb
+            # pdb.set_trace()
             img = datum[0].float().to(args.device)
             if aug:
                 if args.dsa:
@@ -120,10 +122,9 @@ class EvaluatorUtils:
             # print("-----------", mode, img.max(), img.min())
             output = net(img)
             loss = criterion(output, lab)
-            if mode =='train' and hasattr(args, 'sample_weights'):
-                loss = (loss * args.sample_weights).mean()
+            # if mode =='train' and hasattr(args, 'sample_weights'):
+            #     loss = (loss * args.sample_weights).mean()
             acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), lab.cpu().data.numpy()))
-
             loss_avg += loss.item()*n_b
             acc_avg += acc
             num_exp += n_b

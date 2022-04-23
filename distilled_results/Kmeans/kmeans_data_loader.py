@@ -8,9 +8,26 @@ from sklearn_extra.cluster import KMedoids
 import numpy as np
 import argparse
 import os
+import tqdm
+import kornia as K
+from torch.utils.data import Dataset
+
+
 
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
+
+
+class TensorDataset(Dataset):
+    def __init__(self, images, labels): # images: n x c x h x w tensor
+        self.images = images.detach().float()
+        self.labels = labels.detach()
+
+    def __getitem__(self, index):
+        return self.images[index], self.labels[index]
+
+    def __len__(self):
+        return self.images.shape[0]
 
 class KMeansDataLoader:
 
@@ -53,6 +70,38 @@ class KMeansDataLoader:
             transform = transforms.Compose([transforms.ToTensor()])
         ds_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
         ds_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+        use_zca = False
+        if use_zca:
+            images = []
+            labels = []
+            print("Train ZCA")
+            for i in tqdm.tqdm(range(len(ds_train))):
+                im, lab = ds_train[i]
+                images.append(im)
+                labels.append(lab)
+            images = torch.stack(images, dim=0).to('cuda')
+            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+            zca = K.enhance.ZCAWhitening(eps=0.1, compute_inv=True)
+            zca.fit(images)
+            zca_images = zca(images).to("cpu")
+            ds_train = TensorDataset(zca_images, labels)
+
+            images = []
+            labels = []
+            print("Test ZCA")
+            for i in tqdm.tqdm(range(len(ds_test))):
+                im, lab = ds_test[i]
+                images.append(im)
+                labels.append(lab)
+            images = torch.stack(images, dim=0).to('cuda')
+            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+
+            zca_images = zca(images).to("cpu")
+            ds_test = TensorDataset(zca_images, labels)
+
+            # args.zca_trans = zca
+
+
         if use_embedding:
             print("use embedding")
             args = KMeansDataLoader.prepare_args()
@@ -127,4 +176,3 @@ if __name__ == '__main__':
     images, labels = KMeansDataLoader.load_data(1)
     print(images.shape)
     print(labels.shape)
-    

@@ -75,13 +75,13 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
-    args.dsa = False
-    args.epoch_eval_train = 300
+    args.dsa = True
+    args.epoch_eval_train = 1000
     args.normalize_data = True
     # args.optimizer = 'sgd'
     args.autoaug = True
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
 
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['resnet18']})
     evaluator.evaluate(args)

@@ -25,6 +25,11 @@ class ConvNet(nn.Module):
         out = out.view(out.size(0), -1)
         return out
 
+    def embed_before_pool(self, x):
+        out = nn.Sequential(*list(self.features.children())[:-1])(x)
+        out = out.view(out.size(0), -1)
+        return out
+
     def _get_activation(self, net_act):
         if net_act == 'sigmoid':
             return nn.Sigmoid()
