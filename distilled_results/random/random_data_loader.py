@@ -36,7 +36,7 @@ class RandomDataLoader:
         else:
             transform = transforms.Compose([transforms.ToTensor()])
         dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
-
+        
         if args.zca:
             images = []
             labels = []
@@ -51,6 +51,19 @@ class RandomDataLoader:
             zca.fit(images)
             zca_images = zca(images).to("cpu")
             dst_train = TensorDataset(zca_images, labels)
+
+            images = []
+            labels = []
+            print("Test ZCA")
+            for i in tqdm.tqdm(range(len(dst_test))):
+                im, lab = dst_test[i]
+                images.append(im)
+                labels.append(lab)
+            images = torch.stack(images, dim=0).to(args.device)
+            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+
+            zca_images = zca(images).to("cpu")
+            dst_test = TensorDataset(zca_images, labels)
 
         num_classes = 10
         images_all = []

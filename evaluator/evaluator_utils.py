@@ -55,9 +55,6 @@ class EvaluatorUtils:
         else:
             print("using sgd optimizer")
             optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
-        if hasattr(args, 'sample_weights'):
-            criterion = nn.CrossEntropyLoss(reduction='none').to(args.device)
-        else:
             criterion = nn.CrossEntropyLoss().to(args.device)
 
         dst_train = TensorDataset(images_train, labels_train)
@@ -82,7 +79,7 @@ class EvaluatorUtils:
                     optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
         # print("max accuracy:", max_acc_test)
         time_train = time.time() - start
-        # criterion = nn.CrossEntropyLoss().to(args.device)
+        criterion = nn.CrossEntropyLoss().to(args.device)
         loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0)
         print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
 
@@ -149,14 +146,16 @@ class EvaluatorUtils:
         # image_syn_vis[image_syn_vis<0] = 0.0
         # image_syn_vis[image_syn_vis>1] = 1.0
 
-        image_syn_vis = image_syn_vis * 255
+        normalized_d = image_syn_vis * 255
         data_transforms = transforms.Compose([transforms.AutoAugment(policy=torchvision.transforms.AutoAugmentPolicy.CIFAR10)])
-        image_syn_vis = data_transforms(image_syn_vis.to(torch.uint8))
-        image_syn_vis = image_syn_vis / 255.0
+        normalized_d = data_transforms(normalized_d.to(torch.uint8))
+        normalized_d = normalized_d / 255.0
+
+        # print("changes after autoaug: ", (normalized_d - image_syn_vis).pow(2).sum().item())
 
         # for ch in range(3):
         #     image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
-        return image_syn_vis
+        return normalized_d
 
     @staticmethod
     def augment(images, dc_aug_param, device):

@@ -67,8 +67,8 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
-    args.dsa = True
-    args.normalize_data = True
+    args.dsa = False
+    args.normalize_data = False
     args.autoaug = False
     # args.optimizer = 'adam'
     train_image, train_label = RandomDataLoader.load_data(args)
