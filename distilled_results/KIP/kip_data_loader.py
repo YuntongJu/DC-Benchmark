@@ -9,7 +9,8 @@ class KIPDataLoader:
 
     @staticmethod
     def load_labels(path_to_pt_file):
-        return torch.argmax(torch.from_numpy(np.load(path_to_pt_file)), dim=1)
+        # return torch.argmax(torch.from_numpy(np.load(path_to_pt_file)), dim=1)
+        return torch.from_numpy(np.load(path_to_pt_file))
 
 
 if __name__ == '__main__':

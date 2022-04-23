@@ -47,9 +47,10 @@ class CrossArchEvaluator(Evaluator):
         return args
 
     def evaluate(self, args):
+        args.epoch_eval_train = 100
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
-            args.epoch_eval_train = 50
+            args.epoch_eval_train = 100
             args.dc_aug_param = None
         if args.zca:
             args.epoch_eval_train = 20
@@ -67,8 +68,8 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
-    args.dsa = False
-    args.autoaug = True
+    args.dsa = True
+    args.autoaug = False
     # args.optimizer = 'adam'
     train_image, train_label = WholeDataLoader.load_data('cifar10')
     print(train_image.shape)

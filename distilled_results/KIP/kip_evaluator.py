@@ -14,16 +14,19 @@ class CrossArchEvaluator(Evaluator):
         super().__init__(input_images, input_labels, test_dataset)
         self.config = config
 
-    def prepare_args(self):
+    @staticmethod
+    def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
         parser.add_argument('--method', type=str, default='DC', help='DC/DSA')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='ConvNet', help='model')
         parser.add_argument('--ipc', type=int, default=10, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
+        parser.add_argument('--soft_label', type=bool, default=False, help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
+        parser.add_argument('--optimizer', type=str, default='sgd', help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
@@ -41,8 +44,7 @@ class CrossArchEvaluator(Evaluator):
         return args
 
     
-    def evaluate(self):
-        args = self.prepare_args()
+    def evaluate(self, args):
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
@@ -71,12 +73,14 @@ if __name__ == '__main__':
     from distilled_results.KIP.kip_data_loader import KIPDataLoader
     from torchvision import datasets, transforms
 
+    args = CrossArchEvaluator.prepare_args()
     train_image = KIPDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/images.npy')
     train_label = KIPDataLoader.load_labels('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/labels.npy')
-    print(train_label)
+    # print(train_label)
     print(train_image.shape, train_image.dtype)
     print(train_label.shape, train_label.dtype)
     dst_test = get_cifar10_testset()
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
-    evaluator.evaluate()
+    args.soft_label = True
+    evaluator.evaluate(args)

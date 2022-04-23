@@ -114,14 +114,25 @@ class EvaluatorUtils:
                     img = EvaluatorUtils.autoaug(img)
                 else:
                     img = EvaluatorUtils.augment(img, args.dc_aug_param, device=args.device)
-            lab = datum[1].long().to(args.device)
+            if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
+                lab = datum[1].to(args.device)
+            else:
+                lab = datum[1].long().to(args.device)
             n_b = lab.shape[0]
             # print("-----------", mode, img.max(), img.min())
             output = net(img)
-            loss = criterion(output, lab)
+            # breakpoint()
+
+            if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
+                loss = criterion(output, torch.argmax(lab, dim=-1))
+            else:
+                loss = criterion(output, lab)
             # if mode =='train' and hasattr(args, 'sample_weights'):
             #     loss = (loss * args.sample_weights).mean()
-            acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), lab.cpu().data.numpy()))
+            if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
+                acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), np.argmax(lab.cpu().data.numpy(), axis=1)))
+            else:
+                acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), lab.cpu().data.numpy()))
             loss_avg += loss.item()*n_b
             acc_avg += acc
             num_exp += n_b
