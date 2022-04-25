@@ -55,7 +55,7 @@ class CrossArchEvaluator(Evaluator):
         if args.zca:
             args.epoch_eval_train = 20
         per_arch_accuracy = {}
-        for model_name in ['convnet']:
+        for model_name in ['resnet18']:
             model = NetworkUtils.create_network(model_name)
             per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
         return per_arch_accuracy
@@ -68,8 +68,8 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
-    args.dsa = True
-    args.autoaug = False
+    args.dsa = False
+    args.autoaug = True
     # args.optimizer = 'adam'
     train_image, train_label = WholeDataLoader.load_data('cifar10')
     print(train_image.shape)
