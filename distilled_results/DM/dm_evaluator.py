@@ -19,7 +19,7 @@ class CrossArchEvaluator(Evaluator):
         parser = argparse.ArgumentParser(description='Parameter Processing')
         parser.add_argument('--method', type=str, default='DM', help='DC/DSA/DM')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
-        parser.add_argument('--model', type=str, default='ConvNet', help='model')
+        parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--ipc', type=int, default=1, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
@@ -65,11 +65,16 @@ if __name__ == '__main__':
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.DM.dm_data_loader import DMDataLoader
 
-    # train_image, train_label = DMDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC10/res_DM_CIFAR10_ConvNet_10ipc.pt')
-    train_image, train_label = DMDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC50/res_DM_CIFAR10_ConvNet_50ipc.pt')
-    print(train_image.shape)
-    print(train_label.shape)
     args = CrossArchEvaluator.prepare_args()
+    data_path = ''
+    if args.ipc == 1:
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC1/res_DM_CIFAR10_ConvNet_1ipc.pt'
+    elif args.ipc == 10:
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC10/res_DM_CIFAR10_ConvNet_10ipc.pt'
+    elif args.ipc == 50:
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC50/res_DM_CIFAR10_ConvNet_50ipc.pt'
+    
+    train_image, train_label = DMDataLoader.load_data(data_path)
     args.dsa = True
     args.zca = False
     # args.optimizer = 'adam'
@@ -77,15 +82,10 @@ if __name__ == '__main__':
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     avg_result = 0.0
     num_eval = 1
-    model_name = 'alexnet'
     for i in range(num_eval):
-        evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[model_name]})
+        evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
         result = evaluator.evaluate(args)
-        avg_result += result[model_name]
-    # for i in range(num_eval):
-    #     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
-    #     result = evaluator.evaluate(args)
-    #     avg_result += result['convnet']
+        avg_result += result[args.model]
     print("average result for ", num_eval, avg_result / num_eval)
 
     
