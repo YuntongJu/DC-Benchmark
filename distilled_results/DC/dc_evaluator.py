@@ -25,7 +25,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
         parser.add_argument('--normalize_data', type=bool, default=True, help='the number of evaluating randomly initialized models')
-        parser.add_argument('--epoch_eval_train', type=int, default=100, help='epochs to train a model with synthetic data')
+        parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--optimizer', type=str, default="sgd", help='learning rate for updating synthetic images')
@@ -40,7 +40,6 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
-        args.dsa = False
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
         args.device = 'cuda'
         return args
@@ -62,26 +61,24 @@ class CrossArchEvaluator(Evaluator):
 if __name__ == '__main__':
     import sys
     import copy
-    import torchvision.transforms as transforms
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.DC.dc_data_loader import DCDataLoader
-
-    # train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt')
-    train_image, train_label = DCDataLoader.load_data('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt')
-    print(train_image.shape)
-    print(train_label.shape)
-    print(train_image.max())
-    print(train_image.min())
-
     args = CrossArchEvaluator.prepare_args()
+    data_path = ''
+    if args.ipc == 1:
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC1/res_DC_CIFAR10_ConvNet_1ipc.pt'
+    elif args.ipc == 10:
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt'
+    else:
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt'
+
+    train_image, train_label = DCDataLoader.load_data(data_path)
+
     args.zca = False
     args.dsa = True
-    args.epoch_eval_train = 1000
-    args.normalize_data = True
-    # args.optimizer = 'sgd'
-    args.autoaug = True
+    args.autoaug = False
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
 
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['resnet18']})
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate(args)
