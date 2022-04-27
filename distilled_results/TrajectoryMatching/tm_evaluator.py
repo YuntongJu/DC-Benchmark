@@ -87,7 +87,6 @@ class CrossArchEvaluator(Evaluator):
         args = parser.parse_args()
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
 
-        args.dsa = True
         args.device = 'cuda'
         return args
 
@@ -109,20 +108,22 @@ if __name__ == '__main__':
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.TrajectoryMatching.tm_data_loader import TMDataLoader
 
+    args = CrossArchEvaluator.prepare_args()
     # train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/ZCA/images_5000.pt')
     # train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/ZCA/labels_5000.pt')
     # train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/NO_ZCA/images_5000.pt')
     # train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC10/NO_ZCA/labels_5000.pt')
-    train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC50/images_3000.pt')
-    train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC50/labels_3000.pt')
+    # train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC50/images_3000.pt')
+    # train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC50/labels_3000.pt')
+    train_image = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC1/ZCA/images_zca_5000.pt')
+    train_label = TMDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/TrajectoryMatching/CIFAR10/IPC1/ZCA/labels_5000.pt')
     print(train_image.shape)
     print(train_label.shape)
-    args = CrossArchEvaluator.prepare_args()
     args.zca = True
     args.dsa = True
-    args.normalize_data = True
+    args.normalize_data = False
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['alexnet']})
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
     evaluator.evaluate(args)
