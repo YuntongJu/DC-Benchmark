@@ -69,7 +69,7 @@ if __name__ == '__main__':
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
     args.dsa = False
-    args.autoaug = True
+    args.autoaug = False
     # args.optimizer = 'adam'
     train_image, train_label = WholeDataLoader.load_data('cifar10')
     print(train_image.shape)

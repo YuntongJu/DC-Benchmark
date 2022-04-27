@@ -41,7 +41,6 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
-        args.dsa = True
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
         args.device = 'cuda'
         return args
@@ -67,7 +66,7 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
-    args.dsa = False
+    args.dsa = True
     args.normalize_data = False
     args.autoaug = False
     # args.optimizer = 'adam'

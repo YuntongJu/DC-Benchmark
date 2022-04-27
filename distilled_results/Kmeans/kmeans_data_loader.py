@@ -170,8 +170,6 @@ class KMeansDataLoader:
         print("load data ready")
         return images, labels
 
-
-
 if __name__ == '__main__':
     images, labels = KMeansDataLoader.load_data(1)
     print(images.shape)
