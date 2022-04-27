@@ -41,7 +41,6 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
-        args.dsa = False
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
         args.device = 'cuda'
         return args
@@ -63,8 +62,6 @@ if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.Kmeans.kmeans_data_loader import KMeansDataLoader
-    from torchvision import transforms
-    import copy
 
     args = CrossArchEvaluator.prepare_args()
     train_image, train_label = KMeansDataLoader.load_data(args.ipc, use_embedding=True, normalize_data=True)
@@ -73,10 +70,10 @@ if __name__ == '__main__':
     print(train_image.max())
     print(train_image.min())
     args.zca = False
-    args.dsa = True
+    args.dsa = False
     args.normalize_data = True
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['resnet18']})
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['alexnet']})
     evaluator.evaluate(args)
