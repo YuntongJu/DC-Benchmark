@@ -129,7 +129,7 @@ if __name__ == '__main__':
     model_name = 'resnet18'
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[model_name]})
     avg_acc = 0.0
-    for i in range(20):
+    for i in range(args.num_eval):
         per_arch_acc = evaluator.evaluate(args)
         avg_acc += per_arch_acc[model_name]
-    print("Evaluted 20 ", model_name, " average accuracy is: ", avg_acc / 20.0)
+    print("Evaluted ", args.num_eval, " ", model_name, " average accuracy is: ", avg_acc / args.num_eval)
