@@ -42,7 +42,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--lr_img', type=float, default=1000, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_lr', type=float, default=1e-05, help='learning rate for updating... learning rate')
         parser.add_argument('--lr_teacher', type=float, default=0.01, help='initialization for synthetic learning rate')
-        parser.add_argument('--lr_net', type=float, default=0.03327, help='initialization for synthetic learning rate')
+        parser.add_argument('--lr_net', type=float, default=0.014, help='initialization for synthetic learning rate')
 
         parser.add_argument('--lr_init', type=float, default=0.01, help='how to init lr (alpha)')
 

@@ -28,7 +28,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--normalize_data', type=bool, default=False, help='whether to normalize the data') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
-        parser.add_argument('--epoch_eval_train', type=int, default=1000, help='epochs to train a model with synthetic data')
+        parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     args = CrossArchEvaluator.prepare_args()
     args.zca = False
     args.dsa = True
-    args.normalize_data = False
+    args.normalize_data = True
     args.autoaug = False
     # args.optimizer = 'adam'
     train_image, train_label = RandomDataLoader.load_data(args)
@@ -75,5 +75,5 @@ if __name__ == '__main__':
     print(train_label.shape)
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
+    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['resnet18']})
     evaluator.evaluate(args)

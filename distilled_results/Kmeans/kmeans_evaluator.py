@@ -54,7 +54,8 @@ class CrossArchEvaluator(Evaluator):
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(model_name)
-            per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            _, _, acc_test = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            per_arch_accuracy[model_name] = acc_test
         return per_arch_accuracy
 
 # Evaluation for DSA
@@ -74,6 +75,13 @@ if __name__ == '__main__':
     args.normalize_data = True
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
-    testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['alexnet']})
-    evaluator.evaluate(args)
+    avg_acc = 0.0
+    for i in range(20):
+        print("current run is: ", i)
+        testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
+        model_name = 'alexnet'
+        evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[model_name]})
+        per_arch_acc = evaluator.evaluate(args)
+        avg_acc += per_arch_acc[model_name]
+    print("average accuracy for 20 runs is: ", avg_acc / 20.0)
+    
