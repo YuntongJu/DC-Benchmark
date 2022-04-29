@@ -24,6 +24,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='ConvNet', help='model')
         parser.add_argument('--ipc', type=int, default=10, help='image(s) per class')
+        parser.add_argument('--dsa', action='store_true', help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
@@ -71,17 +72,17 @@ if __name__ == '__main__':
     print(train_image.max())
     print(train_image.min())
     args.zca = False
-    args.dsa = False
     args.normalize_data = True
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     avg_acc = 0.0
-    for i in range(20):
+    for i in range(args.num_eval):
         print("current run is: ", i)
         testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-        model_name = 'alexnet'
-        evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[model_name]})
+        evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
         per_arch_acc = evaluator.evaluate(args)
-        avg_acc += per_arch_acc[model_name]
-    print("average accuracy for 20 runs is: ", avg_acc / 20.0)
+        avg_acc += per_arch_acc[args.model]
+
+    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa)
+
     
