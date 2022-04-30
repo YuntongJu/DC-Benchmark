@@ -138,7 +138,7 @@ class EvaluatorUtils:
 
     @staticmethod
     def custom_aug(images, args):
-        image_syn_vis = images
+        image_syn_vis = images.clone()
         if args.normalize_data:
             if args.dataset == 'CIFAR10':
                 mean = [0.4914, 0.4822, 0.4465]
