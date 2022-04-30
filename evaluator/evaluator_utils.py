@@ -168,7 +168,7 @@ class EvaluatorUtils:
 
         if args.normalize_data:
             for ch in range(3):
-                image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
+                normalized_d[:, ch] = (normalized_d[:, ch] - mean[ch])  / std[ch]
         return normalized_d
 
     @staticmethod
