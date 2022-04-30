@@ -22,8 +22,9 @@ class CrossArchEvaluator(Evaluator):
         parser = argparse.ArgumentParser(description='Parameter Processing')
         parser.add_argument('--method', type=str, default='DC', help='DC/DSA')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
-        parser.add_argument('--model', type=str, default='ConvNet', help='model')
-        parser.add_argument('--dsa', action='store_true', help='model')
+        parser.add_argument('--model', type=str, default='convnet', help='model')
+        parser.add_argument('--dsa', action='store_true', help='dsa')
+        parser.add_argument('--autoaug', action='store_true', help='autoaug')
         parser.add_argument('--ipc', type=int, default=50, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--normalize_data', type=bool, default=False, help='whether to normalize the data') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
@@ -51,8 +52,6 @@ class CrossArchEvaluator(Evaluator):
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
             args.dc_aug_param = None
-        if args.zca:
-            args.epoch_eval_train = 1000
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(model_name)
@@ -67,9 +66,6 @@ if __name__ == '__main__':
     from distilled_results.random.random_data_loader import RandomDataLoader
 
     args = CrossArchEvaluator.prepare_args()
-    args.zca = False
-    args.normalize_data = True
-    args.autoaug = False
     # args.optimizer = 'adam'
     train_image, train_label = RandomDataLoader.load_data(args)
     print(train_image.shape)
@@ -81,4 +77,4 @@ if __name__ == '__main__':
     for i in range(args.num_eval):
         per_arch_accuracy = evaluator.evaluate(args)
         avg_acc += per_arch_accuracy[args.model]
-    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa)
+    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval)

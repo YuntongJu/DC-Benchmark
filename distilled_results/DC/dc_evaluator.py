@@ -21,9 +21,11 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--ipc', type=int, default=10, help='image(s) per class')
+        parser.add_argument('--dsa', action="store_true", help='dsa')
+        parser.add_argument('--aug', type=str, default='', help='augmentation method')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
-        parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
+        parser.add_argument('--num_eval', type=int, default=5, help='the number of evaluating randomly initialized models')
         parser.add_argument('--normalize_data', type=bool, default=True, help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
@@ -50,10 +52,14 @@ class CrossArchEvaluator(Evaluator):
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
             args.dc_aug_param = None
+        if args.aug != '':
+            args.epoch_eval_train = 1000
+            args.dc_aug_param = None
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(model_name)
-            per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            _, _, test_acc = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            per_arch_accuracy[model_name]  = test_acc
         return per_arch_accuracy
         
 
@@ -65,20 +71,31 @@ if __name__ == '__main__':
     from distilled_results.DC.dc_data_loader import DCDataLoader
     args = CrossArchEvaluator.prepare_args()
     data_path = ''
-    if args.ipc == 1:
-        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC1/res_DC_CIFAR10_ConvNet_1ipc.pt'
-    elif args.ipc == 10:
-        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt'
-    else:
-        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt'
+    if args.dataset == 'CIFAR10':
+        if args.ipc == 1:
+            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC1/res_DC_CIFAR10_ConvNet_1ipc.pt'
+        elif args.ipc == 10:
+            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt'
+        else:
+            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt'
+    elif args.dataset == 'CIFAR100':
+        if args.ipc == 1:
+            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR100/IPC1/res_DC_CIFAR100_ConvNet_1ipc.pt'
+        elif args.ipc == 10:
+            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR100/IPC10/res_DC_CIFAR100_ConvNet_10ipc.pt'
+        else:
+            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR100/IPC50/res_DC_CIFAR100_ConvNet_50ipc.pt'
+
 
     train_image, train_label = DCDataLoader.load_data(data_path)
 
-    args.zca = False
-    args.dsa = True
-    args.autoaug = False
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
 
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
-    evaluator.evaluate(args)
+
+    avg_acc = 0.0
+    for i in range(args.num_eval):
+        per_arch_accuracy = evaluator.evaluate(args)
+        avg_acc += per_arch_accuracy[args.model]
+    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval)

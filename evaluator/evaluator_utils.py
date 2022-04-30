@@ -61,13 +61,9 @@ class EvaluatorUtils:
         trainloader = torch.utils.data.DataLoader(dst_train, batch_size=args.batch_train, shuffle=True, num_workers=0)
 
         start = time.time()
-        max_acc_test = 0.0
         criterion = nn.CrossEntropyLoss().to(args.device)
         for ep in range(Epoch+1):
             loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True, ep=ep)
-            # loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0)
-            # max_acc_test = max(max_acc_test, acc_test)
-            # print("max accuracy:", max_acc_test)
             if ep in lr_schedule:
                 lr *= 0.1
                 if args.optimizer == 'adam':
@@ -77,7 +73,6 @@ class EvaluatorUtils:
                 else:
                     print("using sgd optimizer")
                     optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
-        # print("max accuracy:", max_acc_test)
         time_train = time.time() - start
         criterion = nn.CrossEntropyLoss().to(args.device)
         loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0)
@@ -98,20 +93,16 @@ class EvaluatorUtils:
             net.eval()
 
         for i_batch, datum in enumerate(dataloader):
-            # import pdb
-            # pdb.set_trace()
             img = datum[0].float().to(args.device)
             if aug:
                 if args.dsa:
-                    # import pdb
-                    # pdb.set_trace()
                     if i_batch == 0:
                         print("using dsa")
                     img = EvaluatorUtils.DiffAugment(img, args.dsa_strategy, param=args.dsa_param)
-                elif hasattr(args, 'autoaug') and args.autoaug:
+                elif hasattr(args, 'aug') and args.aug != '':
                     if i_batch == 0:
-                        print("using autoaug")
-                    img = EvaluatorUtils.autoaug(img)
+                        print("using ", args.aug)
+                    img = EvaluatorUtils.custom_aug(img, args)
                 else:
                     img = EvaluatorUtils.augment(img, args.dc_aug_param, device=args.device)
             if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
@@ -119,16 +110,12 @@ class EvaluatorUtils:
             else:
                 lab = datum[1].long().to(args.device)
             n_b = lab.shape[0]
-            # print("-----------", mode, img.max(), img.min())
             output = net(img)
-            # breakpoint()
 
             if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
                 loss = criterion(output, torch.argmax(lab, dim=-1))
             else:
                 loss = criterion(output, lab)
-            # if mode =='train' and hasattr(args, 'sample_weights'):
-            #     loss = (loss * args.sample_weights).mean()
             if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
                 acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), np.argmax(lab.cpu().data.numpy(), axis=1)))
             else:
@@ -148,24 +135,38 @@ class EvaluatorUtils:
         return loss_avg, acc_avg
 
     @staticmethod
-    def autoaug(images):
+    def custom_aug(images, args):
         image_syn_vis = images
-        # mean = [0.4914, 0.4822, 0.4465]
-        # std = [0.2023, 0.1994, 0.2010]
-        # for ch in range(3):
-        #     image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
-        # image_syn_vis[image_syn_vis<0] = 0.0
-        # image_syn_vis[image_syn_vis>1] = 1.0
+        if args.normalize_data:
+            if args.dataset == 'CIFAR10':
+                mean = [0.4914, 0.4822, 0.4465]
+                std = [0.2023, 0.1994, 0.2010]
+            elif args.dataset == 'CIFAR100':
+                mean = [0.5071, 0.4866, 0.4409]
+                std = [0.2673, 0.2564, 0.2762]
+                
+            for ch in range(3):
+                image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
+            image_syn_vis[image_syn_vis<0] = 0.0
+            image_syn_vis[image_syn_vis>1] = 1.0
 
         normalized_d = image_syn_vis * 255
-        data_transforms = transforms.Compose([transforms.AutoAugment(policy=torchvision.transforms.AutoAugmentPolicy.CIFAR10)])
+        if args.aug == 'autoaug':
+            data_transforms = transforms.Compose([transforms.AutoAugment(policy=torchvision.transforms.AutoAugmentPolicy.CIFAR10)])
+        elif args.aug == 'randaug':
+            data_transforms = transforms.Compose([transforms.RandAugment(num_ops=1)])
+        elif args.aug == 'regular_aug':
+            data_transforms = transforms.Compose([transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2)])
+        else:
+            exit('unknown augmentation method: %s'%args.aug)
         normalized_d = data_transforms(normalized_d.to(torch.uint8))
         normalized_d = normalized_d / 255.0
 
         # print("changes after autoaug: ", (normalized_d - image_syn_vis).pow(2).sum().item())
 
-        # for ch in range(3):
-        #     image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
+        if args.normalize_data:
+            for ch in range(3):
+                image_syn_vis[:, ch] = (image_syn_vis[:, ch] - mean[ch])  / std[ch]
         return normalized_d
 
     @staticmethod
@@ -420,23 +421,40 @@ class EvaluatorUtils:
 
     @staticmethod
     def get_cifar10_testset(args):
-        channel = 3
-        im_size = (32, 32)
-        num_classes = 10
-        mean = [0.4914, 0.4822, 0.4465]
-        std = [0.2023, 0.1994, 0.2010]
-        if args.zca:
-            print("---------------------------used ZCA")
-            transform = transforms.Compose([transforms.ToTensor()])
-        elif args.normalize_data:
-            transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
-        else:
-            transform = transforms.Compose([transforms.ToTensor()])
+        if args.dataset == 'CIFAR10':
+            channel = 3
+            im_size = (32, 32)
+            num_classes = 10
+            mean = [0.4914, 0.4822, 0.4465]
+            std = [0.2023, 0.1994, 0.2010]
+            if hasattr(args, "zca") and args.zca:
+                print("---------------------------used ZCA")
+                transform = transforms.Compose([transforms.ToTensor()])
+            elif args.normalize_data:
+                transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+            else:
+                transform = transforms.Compose([transforms.ToTensor()])
 
-        dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
-        dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+            dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
+            dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+        elif args.dataset == 'CIFAR100':
+            channel = 3
+            im_size = (32, 32)
+            num_classes = 100
+            mean = [0.5071, 0.4866, 0.4409]
+            std = [0.2673, 0.2564, 0.2762]
+            if args.zca:
+                print("---------------------------used ZCA")
+                transform = transforms.Compose([transforms.ToTensor()])
+            elif args.normalize_data:
+                transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+            else:
+                transform = transforms.Compose([transforms.ToTensor()])
+            dst_train = datasets.CIFAR100(data_path, train=True, download=True, transform=transform) # no augmentation
+            dst_test = datasets.CIFAR100(data_path, train=False, download=True, transform=transform)
+            class_names = dst_train.classes
 
-        if args.zca:
+        if hasattr(args, "zca") and args.zca:
             images = []
             labels = []
             print("Train ZCA")

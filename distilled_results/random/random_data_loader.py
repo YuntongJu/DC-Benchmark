@@ -37,7 +37,7 @@ class RandomDataLoader:
             transform = transforms.Compose([transforms.ToTensor()])
         dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
         
-        if args.zca:
+        if hasattr(args, "zca") and args.zca:
             images = []
             labels = []
             print("Train ZCA")
