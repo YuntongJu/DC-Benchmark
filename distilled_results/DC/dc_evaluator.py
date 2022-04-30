@@ -36,13 +36,13 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--batch_real', type=int, default=256, help='batch size for real data')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
         parser.add_argument('--init', type=str, default='noise', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
-        # parser.add_argument('--dsa_strategy', type=str, default='None', help='differentiable Siamese augmentation strategy')
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate', help='differentiable Siamese augmentation strategy')
         parser.add_argument('--data_path', type=str, default='data', help='dataset path')
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
+        # args.dc_aug_param['strategy'] = 'crop_scale_rotate_noise'
         args.device = 'cuda'
         return args
 
@@ -55,6 +55,9 @@ class CrossArchEvaluator(Evaluator):
         if args.aug != '':
             args.epoch_eval_train = 1000
             args.dc_aug_param = None
+        if args.dc_aug_param != None and args.dc_aug_param['strategy'] != 'none':
+            args.epoch_eval_train = 1000
+
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(model_name)

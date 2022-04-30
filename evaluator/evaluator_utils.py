@@ -10,6 +10,8 @@ import torchvision
 import tqdm
 import kornia as K
 from torch.utils.data import Dataset
+from scipy.ndimage.interpolation import rotate as scipyrotate
+
 
 
 class TensorDataset(Dataset):
@@ -171,9 +173,11 @@ class EvaluatorUtils:
 
     @staticmethod
     def augment(images, dc_aug_param, device):
-    # This can be sped up in the future.
-
+        # This can be sped up in the future.
+        if dc_aug_param == None or dc_aug_param['strategy'] == 'none':
+            print("not using any augmentation")
         if dc_aug_param != None and dc_aug_param['strategy'] != 'none':
+            print("using DC augmentation")
             scale = dc_aug_param['scale']
             crop = dc_aug_param['crop']
             rotate = dc_aug_param['rotate']
