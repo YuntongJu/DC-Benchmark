@@ -149,8 +149,8 @@ class EvaluatorUtils:
                 
             for ch in range(3):
                 image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
-            image_syn_vis[image_syn_vis<0] = 0.0
-            image_syn_vis[image_syn_vis>1] = 1.0
+        image_syn_vis[image_syn_vis<0] = 0.0
+        image_syn_vis[image_syn_vis>1] = 1.0
 
         normalized_d = image_syn_vis * 255
         if args.aug == 'autoaug':

@@ -75,20 +75,9 @@ if __name__ == '__main__':
     args = CrossArchEvaluator.prepare_args()
     data_path = ''
     if args.dataset == 'CIFAR10':
-        if args.ipc == 1:
-            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC1/res_DC_CIFAR10_ConvNet_1ipc.pt'
-        elif args.ipc == 10:
-            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC10/res_DC_CIFAR10_ConvNet_10ipc.pt'
-        else:
-            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt'
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR10/IPC' + str(args.ipc) + '/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'CIFAR100':
-        if args.ipc == 1:
-            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR100/IPC1/res_DC_CIFAR100_ConvNet_1ipc.pt'
-        elif args.ipc == 10:
-            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR100/IPC10/res_DC_CIFAR100_ConvNet_10ipc.pt'
-        else:
-            data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR100/IPC50/res_DC_CIFAR100_ConvNet_50ipc.pt'
-
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DC/CIFAR100/IPC' + str(args.ipc) + '/res_DC_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
 
     train_image, train_label = DCDataLoader.load_data(data_path)
 
