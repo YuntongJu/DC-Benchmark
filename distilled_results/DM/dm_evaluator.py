@@ -21,9 +21,11 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--ipc', type=int, default=1, help='image(s) per class')
+        parser.add_argument('--dsa', action="store_true", help='dsa')
+        parser.add_argument('--aug', type=str, default='', help='augmentation method')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
-        parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
+        parser.add_argument('--num_eval', type=int, default=5, help='the number of evaluating randomly initialized models')
         parser.add_argument('--normalize_data', type=bool, default=True, help='the number of evaluating randomly initialized models')
         parser.add_argument('--optimizer', type=str, default='sgd', help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
@@ -40,7 +42,6 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
-        args.dsa = False
         args.device = 'cuda'
         return args
 
@@ -51,10 +52,17 @@ class CrossArchEvaluator(Evaluator):
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
             args.dc_aug_param = None
+
+        if args.aug != '':
+            args.epoch_eval_train = 1000
+            args.dc_aug_param = None
+        if args.dc_aug_param != None and args.dc_aug_param['strategy'] != 'none':
+            args.epoch_eval_train = 1000
+
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(model_name)
-            net, acc_train, acc_test= EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            _, _, acc_test= EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
             per_arch_accuracy[model_name] = acc_test
         return per_arch_accuracy
         
@@ -67,25 +75,20 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     data_path = ''
-    if args.ipc == 1:
-        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC1/res_DM_CIFAR10_ConvNet_1ipc.pt'
-    elif args.ipc == 10:
-        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC10/res_DM_CIFAR10_ConvNet_10ipc.pt'
-    elif args.ipc == 50:
-        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC50/res_DM_CIFAR10_ConvNet_50ipc.pt'
+    if args.dataset == 'CIFAR10':
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR10/IPC' + str(args.ipc) + '/res_DM_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
+    elif args.dataset == 'CIFAR100':
+        data_path = '/home/justincui/dc_benchmark/dc_benchmark/distilled_results/DM/CIFAR100/IPC' + str(args.ipc) + '/res_DM_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
     
     train_image, train_label = DMDataLoader.load_data(data_path)
-    args.dsa = True
-    args.zca = False
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    avg_result = 0.0
-    num_eval = 1
-    for i in range(num_eval):
+    avg_acc = 0.0
+    for i in range(args.num_eval):
         evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
         result = evaluator.evaluate(args)
-        avg_result += result[args.model]
-    print("average result for ", num_eval, avg_result / num_eval)
+        avg_acc += result[args.model]
+    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval, ' ', args.aug)
 
     
