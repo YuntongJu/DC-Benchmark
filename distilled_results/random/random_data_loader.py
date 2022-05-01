@@ -1,13 +1,10 @@
 import sys
 sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 
-from evaluator.evaluator_utils import EvaluatorUtils
 import torch
 import numpy as np
 from torchvision import datasets, transforms
-import tqdm
 from torch.utils.data import Dataset
-import kornia as K
 
 
 
@@ -36,36 +33,14 @@ class RandomDataLoader:
         else:
             transform = transforms.Compose([transforms.ToTensor()])
         dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
-        
-        if hasattr(args, "zca") and args.zca:
-            images = []
-            labels = []
-            print("Train ZCA")
-            for i in tqdm.tqdm(range(len(dst_train))):
-                im, lab = dst_train[i]
-                images.append(im)
-                labels.append(lab)
-            images = torch.stack(images, dim=0).to(args.device)
-            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
-            zca = K.enhance.ZCAWhitening(eps=0.1, compute_inv=True)
-            zca.fit(images)
-            zca_images = zca(images).to("cpu")
-            dst_train = TensorDataset(zca_images, labels)
 
-            images = []
-            labels = []
-            print("Test ZCA")
-            for i in tqdm.tqdm(range(len(dst_test))):
-                im, lab = dst_test[i]
-                images.append(im)
-                labels.append(lab)
-            images = torch.stack(images, dim=0).to(args.device)
-            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
+        if args.dataset == 'CIFAR10':
+            num_classes = 10
+        elif args.dataset == 'CIFAR100':
+            num_classes = 100
+        elif args.dataset == 'tinyimagenet':
+            num_classes = 200
 
-            zca_images = zca(images).to("cpu")
-            dst_test = TensorDataset(zca_images, labels)
-
-        num_classes = 10
         images_all = []
         labels_all = []
         indices_class = [[] for c in range(num_classes)]
