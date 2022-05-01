@@ -46,6 +46,12 @@ class CrossArchEvaluator(Evaluator):
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
             args.dc_aug_param = None
+        if args.aug != '':
+            args.epoch_eval_train = 1000
+            args.dc_aug_param = None
+        if args.dc_aug_param != None and args.dc_aug_param['strategy'] != 'none':
+            args.epoch_eval_train = 1000
+            
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(model_name)
@@ -75,7 +81,6 @@ if __name__ == '__main__':
         evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
         per_arch_acc = evaluator.evaluate(args)
         avg_acc += per_arch_acc[args.model]
-
-    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval)
+    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval, args.aug)
 
     
