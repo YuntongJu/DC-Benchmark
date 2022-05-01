@@ -4,12 +4,10 @@ sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 import torch
 from torchvision import datasets, transforms
 from sklearn.cluster import KMeans
-from sklearn_extra.cluster import KMedoids
 import numpy as np
 import argparse
-import os
 import tqdm
-import kornia as K
+import os
 from torch.utils.data import Dataset
 
 
@@ -34,35 +32,35 @@ class KMeansDataLoader:
     @staticmethod
     def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
-        parser.add_argument('--method', type=str, default='DC', help='DC/DSA')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
-        parser.add_argument('--model', type=str, default='ConvNet', help='model')
+        parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--dsa', action='store_true', help='model')
-        parser.add_argument('--ipc', type=int, default=50, help='image(s) per class')
+        parser.add_argument('--ipc', type=int, default=10, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
-        parser.add_argument('--normalize_data', type=bool, default=False, help='whether to normalize the data') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
-        parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
-        parser.add_argument('--epoch_eval_train', type=int, default=50, help='epochs to train a model with synthetic data')
+        parser.add_argument('--optimizer', type=str, default='sgd', help='the number of evaluating randomly initialized models')
+        parser.add_argument('--normalize_data', type=bool, default=False, help='the number of evaluating randomly initialized models')
+        parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
-        parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
-        parser.add_argument('--batch_real', type=int, default=256, help='batch size for real data')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
         parser.add_argument('--init', type=str, default='noise', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
-        parser.add_argument('--optimizer', type=str, default='sgd', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate', help='differentiable Siamese augmentation strategy')
-        parser.add_argument('--data_path', type=str, default='data', help='dataset path')
-        parser.add_argument('--save_path', type=str, default='result', help='path to save results')
-        parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
-        args.dsa = False
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
         args.device = 'cuda'
         return args
 
     @staticmethod
-    def load_data(ipc, use_embedding=True, normalize_data = False):
+    def load_data(use_embedding=True, normalize_data = False):
+        output_images_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/images.pt'
+        output_labels_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/labels.pt'
+        if os.path.exists(output_images_path) or os.path.exists(output_labels_path):
+            exit("file already exisits")
+
+        args = KMeansDataLoader.prepare_args()
+        args.epoch_eval_train = 0
+
         mean = [0.4914, 0.4822, 0.4465]
         std = [0.2023, 0.1994, 0.2010]
         if normalize_data:
@@ -71,43 +69,9 @@ class KMeansDataLoader:
             transform = transforms.Compose([transforms.ToTensor()])
         ds_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
         ds_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
-        use_zca = False
-        if use_zca:
-            images = []
-            labels = []
-            print("Train ZCA")
-            for i in tqdm.tqdm(range(len(ds_train))):
-                im, lab = ds_train[i]
-                images.append(im)
-                labels.append(lab)
-            images = torch.stack(images, dim=0).to('cuda')
-            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
-            zca = K.enhance.ZCAWhitening(eps=0.1, compute_inv=True)
-            zca.fit(images)
-            zca_images = zca(images).to("cpu")
-            ds_train = TensorDataset(zca_images, labels)
-
-            images = []
-            labels = []
-            print("Test ZCA")
-            for i in tqdm.tqdm(range(len(ds_test))):
-                im, lab = ds_test[i]
-                images.append(im)
-                labels.append(lab)
-            images = torch.stack(images, dim=0).to('cuda')
-            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
-
-            zca_images = zca(images).to("cpu")
-            ds_test = TensorDataset(zca_images, labels)
-
-            # args.zca_trans = zca
-
 
         if use_embedding:
             print("use embedding")
-            args = KMeansDataLoader.prepare_args()
-            args.epoch_eval_train = 0
-            args.dsa = False
             if args.dsa:
                 args.dsa_param = EvaluatorUtils.ParamDiffAug()
                 args.epoch_eval_train = 1000
@@ -117,15 +81,9 @@ class KMeansDataLoader:
 
             images_all = torch.cat(images_all, dim=0)
             labels_all = torch.tensor(labels_all, dtype=torch.long)
-            # model_name = 'resnet18'
-            model_name = 'convnet'
-            net = NetworkUtils.create_network(model_name).to(args.device)
-            # if os.path.exists('data/' + model_name):
-            #     net.load_state_dict(torch.load('data/' + model_name))
-            # else:
+            net = NetworkUtils.create_network(args.model).to(args.device)
             testloader = torch.utils.data.DataLoader(ds_test, batch_size=256, shuffle=False, num_workers=0)
-            net, acc_train, acc_test = EvaluatorUtils.evaluate_synset(0, net, images_all, labels_all, testloader, args)
-            # torch.save(net.state_dict(), 'data/' + model_name)
+            net, _, _ = EvaluatorUtils.evaluate_synset(0, net, images_all, labels_all, testloader, args)
 
         feature_map = {}
         data_map = {}
@@ -146,20 +104,11 @@ class KMeansDataLoader:
         labels = []
         for key in feature_map:
             X = np.array(feature_map[key])
-            # print(X.shape)
-            # find the kmeans center
-            kmeans = KMeans(n_clusters=ipc, random_state=0, init='k-means++').fit(X)
-            # kmeans = KMedoids(n_clusters=ipc, random_state=0, init='k-medoids++').fit(X)
-            # find the samples that are closest to the kmeans center
-            # print(kmeans.cluster_centers_.shape)
+            kmeans = KMeans(n_clusters=args.ipc, random_state=0, init='k-means++').fit(X)
             dist = (kmeans.cluster_centers_[:, np.newaxis] - X)
-            # print(dist.shape)
             dist = dist ** 2
             dist = np.sum(dist, axis=2)
-            # print(dist.shape)
             dist = dist ** (0.5)
-            # print(dist.shape)
-            # knn_indices = dist.topk(1, largest=False, sorted=False)
             knn_indices = np.argmin(dist, axis=1)
             print(knn_indices.shape)
             print(knn_indices)
@@ -168,7 +117,11 @@ class KMeansDataLoader:
                 labels.append(key)
         images = torch.cat(images)
         labels = torch.Tensor(labels)
-        print("load data ready")
+        with open(output_images_path, "wb") as f:
+            torch.save(images, f)
+        with open(output_labels_path, "wb") as f:
+            torch.save(images, f)
+        print("generate data ready")
         return images, labels
 
 if __name__ == '__main__':
