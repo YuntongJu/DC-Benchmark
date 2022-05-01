@@ -53,12 +53,13 @@ class KMeansDataLoader:
 
     @staticmethod
     def load_data(use_embedding=True, normalize_data = False):
-        output_images_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/images.pt'
-        output_labels_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/labels.pt'
+        args = KMeansDataLoader.prepare_args()
+
+        output_images_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/' + args.dataset + '_IPC' + str(args.ipc) + '_' + 'images.pt'
+        output_labels_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/' + args.dataset + '_IPC' + str(args.ipc) + '_' + 'labels.pt'
         if os.path.exists(output_images_path) or os.path.exists(output_labels_path):
             exit("file already exisits")
 
-        args = KMeansDataLoader.prepare_args()
         args.epoch_eval_train = 0
 
         mean = [0.4914, 0.4822, 0.4465]

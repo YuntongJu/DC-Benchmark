@@ -63,7 +63,6 @@ class CrossArchEvaluator(Evaluator):
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    from distilled_results.Kmeans.kmeans_data_loader import KMeansDataLoader
 
     args = CrossArchEvaluator.prepare_args()
     train_image, train_label = KMeansDataLoader.load_data(args.ipc, use_embedding=True, normalize_data=True)
