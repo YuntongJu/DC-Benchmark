@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
+sys.path.append('/home/justincui/dc_benchmark')
 
 import torch
 from evaluator.evaluator import Evaluator
