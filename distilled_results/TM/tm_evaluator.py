@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
+sys.path.append('/home/justincui/dc_benchmark')
 
 import torch
 from evaluator.evaluator import Evaluator
@@ -7,8 +7,6 @@ from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
 import os
-
-
 
 class CrossArchEvaluator(Evaluator):
 
@@ -75,7 +73,7 @@ if __name__ == '__main__':
     print(train_image.min())
     print(train_image.max())
 
-    dst_test = EvaluatorUtils.get_cifar10_testset(args)
+    dst_test = EvaluatorUtils.get_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
 
