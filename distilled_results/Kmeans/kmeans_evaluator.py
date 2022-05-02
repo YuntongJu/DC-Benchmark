@@ -7,7 +7,6 @@ from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
 import os
-from torch.utils.data import Dataset
 
 
 class CrossArchEvaluator(Evaluator):
@@ -54,7 +53,7 @@ class CrossArchEvaluator(Evaluator):
 
         per_arch_accuracy = {}
         for model_name in self.config['models']:
-            model = NetworkUtils.create_network(model_name)
+            model = NetworkUtils.create_network(args)
             _, _, acc_test = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
             per_arch_accuracy[model_name] = acc_test
         return per_arch_accuracy
@@ -74,7 +73,7 @@ if __name__ == '__main__':
     print(train_image.max())
     print(train_image.min())
     # args.optimizer = 'adam'
-    dst_test = EvaluatorUtils.get_cifar10_testset(args)
+    dst_test = EvaluatorUtils.get_testset(args)
     avg_acc = 0.0
     for i in range(args.num_eval):
         print("current run is: ", i)

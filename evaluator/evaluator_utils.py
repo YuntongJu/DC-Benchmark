@@ -104,7 +104,6 @@ class EvaluatorUtils:
 
     @staticmethod
     def epoch(mode, dataloader, net, optimizer, criterion, args, aug, ep):
-        print("mode:", mode)
         loss_avg, acc_avg, num_exp = 0, 0, 0
         net = net.to(args.device)
         criterion = criterion.to(args.device)
