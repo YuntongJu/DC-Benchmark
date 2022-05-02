@@ -4,13 +4,18 @@ sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 from networks.convnet import ConvNet
 from networks.alexnet import AlexNet
 from networks.resnet import ResNet, ResNet18
-import torchvision.models as models
 class NetworkUtils:
 
     @staticmethod
-    def create_network(model_name):
+    def create_network(args):
         channel = 3
-        num_classes = 10
+        model_name = args.model
+        if args.dataset == 'CIFAR10':
+            num_classes = 10
+        elif args.dataset == 'CIFAR100':
+            num_classes = 100
+        elif args.dataset == 'tinyimagenet':
+            num_classes = 200
         if model_name == 'convnet':
             net_width, net_depth, net_act, net_norm, net_pooling = 128, 3, 'relu', 'instancenorm', 'avgpooling'
             return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = (32,32))

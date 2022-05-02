@@ -52,7 +52,7 @@ class CrossArchEvaluator(Evaluator):
 
         per_arch_accuracy = {}
         for model_name in self.config['models']:
-            model = NetworkUtils.create_network(model_name)
+            model = NetworkUtils.create_network(args)
             _, _, acc_test = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
             per_arch_accuracy[model_name] = acc_test
         return per_arch_accuracy
