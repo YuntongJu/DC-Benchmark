@@ -22,7 +22,7 @@ class CrossArchEvaluator(Evaluator):
         parser = argparse.ArgumentParser(description='Parameter Processing')
         parser.add_argument('--method', type=str, default='DC', help='DC/DSA')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
-        parser.add_argument('--model', type=str, default='ConvNet', help='model')
+        parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--ipc', type=int, default=10, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
@@ -41,7 +41,6 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--save_path', type=str, default='result', help='path to save results')
         parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
         args = parser.parse_args()
-        args.dsa = False
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
         args.device = 'cuda'
         return args
@@ -55,7 +54,8 @@ class CrossArchEvaluator(Evaluator):
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(model_name)
-            per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            _, _, test_acc = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            per_arch_accuracy[model_name] = test_acc
         return per_arch_accuracy
 
 # Evaluation for DSA
@@ -63,20 +63,25 @@ if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.Kmeans.kmeans_data_loader import KMeansDataLoader
-    from torchvision import transforms
-    import copy
 
     args = CrossArchEvaluator.prepare_args()
-    train_image, train_label = KMeansDataLoader.load_data(args.ipc, use_embedding=True, normalize_data=True)
-    print(train_image.shape)
-    print(train_label.shape)
-    print(train_image.max())
-    print(train_image.min())
     args.zca = False
     args.dsa = True
     args.normalize_data = True
-    # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
-    testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
-    evaluator.evaluate(args)
+    current_best = 0.0
+    while True:
+        train_image, train_label = KMeansDataLoader.load_data(args.ipc, use_embedding=True, normalize_data=True)
+        print(train_image.shape)
+        print(train_label.shape)
+        print(train_image.max())
+        print(train_image.min())
+        # args.optimizer = 'adam'
+        testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
+        evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
+        per_arch_accuracy = evaluator.evaluate(args)
+        if per_arch_accuracy[args.model] > current_best:
+            current_best = per_arch_accuracy[args.model]
+            torch.save(train_image, str(args.ipc) + 'images.pt')
+            torch.save(train_label, str(args.ipc) + 'label.pt')
+        print("current best accuracy: ", current_best)

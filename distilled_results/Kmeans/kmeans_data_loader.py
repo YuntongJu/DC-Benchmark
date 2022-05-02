@@ -4,7 +4,6 @@ sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 import torch
 from torchvision import datasets, transforms
 from sklearn.cluster import KMeans
-from sklearn_extra.cluster import KMedoids
 import numpy as np
 import argparse
 import os
