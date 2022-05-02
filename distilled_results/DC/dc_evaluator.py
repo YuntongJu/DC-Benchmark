@@ -84,4 +84,4 @@ if __name__ == '__main__':
         print("current iteration: ", i)
         per_arch_accuracy = evaluator.evaluate(args)
         avg_acc += per_arch_accuracy[args.model]
-    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval)
+    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval, args.aug)
