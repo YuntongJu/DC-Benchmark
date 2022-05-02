@@ -6,9 +6,7 @@ from evaluator.evaluator import Evaluator
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
-import tqdm
-import kornia as K
-from torch.utils.data import Dataset
+import os
 
 
 class CrossArchEvaluator(Evaluator):
@@ -26,7 +24,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--aug', type=str, default='', help='augmentation method')
         parser.add_argument('--ipc', type=int, default=50, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
-        parser.add_argument('--normalize_data', type=bool, default=False, help='whether to normalize the data') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
+        parser.add_argument('--normalize_data', action="store_true", help='whether to normalize the data') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_eval', type=int, default=5, help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
@@ -64,9 +62,16 @@ if __name__ == '__main__':
 
     args = CrossArchEvaluator.prepare_args()
     # args.optimizer = 'adam'
-    train_image, train_label = RandomDataLoader.load_data(args)
+    data_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/' + args.dataset + '_IPC' + str(args.ipc) + '_'
+    if args.normalize_data:
+        data_path += 'normalize_'
+    image_path = data_path + 'images.pt'
+    label_path = data_path + 'labels.pt'
+    train_image, train_label = RandomDataLoader.load_data(image_path, label_path)
     print(train_image.shape)
     print(train_label.shape)
+    print(train_image.max())
+    print(train_image.min())
     dst_test = EvaluatorUtils.get_cifar10_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})

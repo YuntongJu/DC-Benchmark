@@ -51,7 +51,7 @@ class CrossArchEvaluator(Evaluator):
             args.dc_aug_param = None
         if args.dc_aug_param != None and args.dc_aug_param['strategy'] != 'none':
             args.epoch_eval_train = 1000
-            
+
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(model_name)
@@ -65,8 +65,9 @@ if __name__ == '__main__':
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.Kmeans.kmeans_data_loader import KMeansDataLoader
     args = CrossArchEvaluator.prepare_args()
-    image_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/' + args.dataset + '_IPC' + str(args.ipc) + '_' + 'images.pt'
-    label_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/' + args.dataset + '_IPC' + str(args.ipc) + '_' + 'labels.pt'
+    data_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/' + args.dataset + '_IPC' + str(args.ipc) + '_'
+    image_path = data_path + 'images.pt'
+    label_path = data_path + 'labels.pt'
     train_image, train_label = KMeansDataLoader.load_data(image_path, label_path)
     print(train_image.shape)
     print(train_label.shape)
