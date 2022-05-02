@@ -408,51 +408,21 @@ class EvaluatorUtils:
         return x
 
     @staticmethod
-    def get_cifar10_testset(args):
-        channel = 3
-        im_size = (32, 32)
-        num_classes = 10
-        mean = [0.4914, 0.4822, 0.4465]
-        std = [0.2023, 0.1994, 0.2010]
-        if args.zca:
-            print("---------------------------used ZCA")
-            transform = transforms.Compose([transforms.ToTensor()])
-        elif args.normalize_data:
+    def get_testset(args):
+        if args.dataset == 'CIFAR10':
+            mean = [0.4914, 0.4822, 0.4465]
+            std = [0.2023, 0.1994, 0.2010]
+        elif args.dataset == 'CIFAR100':
+            mean = [0.5071, 0.4866, 0.4409]
+            std = [0.2673, 0.2564, 0.2762]
+        if args.normalize_data:
             transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
         else:
             transform = transforms.Compose([transforms.ToTensor()])
 
-        dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
-        dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
-
-        if args.zca:
-            images = []
-            labels = []
-            print("Train ZCA")
-            for i in tqdm.tqdm(range(len(dst_train))):
-                im, lab = dst_train[i]
-                images.append(im)
-                labels.append(lab)
-            images = torch.stack(images, dim=0).to(args.device)
-            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
-            zca = K.enhance.ZCAWhitening(eps=0.1, compute_inv=True)
-            zca.fit(images)
-            zca_images = zca(images).to("cpu")
-            dst_train = TensorDataset(zca_images, labels)
-
-            images = []
-            labels = []
-            print("Test ZCA")
-            for i in tqdm.tqdm(range(len(dst_test))):
-                im, lab = dst_test[i]
-                images.append(im)
-                labels.append(lab)
-            images = torch.stack(images, dim=0).to(args.device)
-            labels = torch.tensor(labels, dtype=torch.long, device="cpu")
-
-            zca_images = zca(images).to("cpu")
-            dst_test = TensorDataset(zca_images, labels)
-
-            args.zca_trans = zca
+        if args.dataset == 'CIFAR10':
+            dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+        elif args.dataset == 'CIFAR100':
+            dst_test = datasets.CIFAR100('data', train=False, download=True, transform=transform)
 
         return dst_test

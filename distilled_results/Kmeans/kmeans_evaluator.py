@@ -53,7 +53,8 @@ class CrossArchEvaluator(Evaluator):
             args.dc_aug_param = None
         per_arch_accuracy = {}
         for model_name in self.config['models']:
-            model = NetworkUtils.create_network(model_name)
+            model = NetworkUtils.create_network(model_name, args.dataset)
+            breakpoint()
             _, _, test_acc = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
             per_arch_accuracy[model_name] = test_acc
         return per_arch_accuracy
@@ -68,10 +69,10 @@ if __name__ == '__main__':
     args.zca = False
     args.dsa = True
     args.normalize_data = True
-    dst_test = EvaluatorUtils.get_cifar10_testset(args)
+    dst_test = EvaluatorUtils.get_testset(args)
     current_best = 0.0
     while True:
-        train_image, train_label = KMeansDataLoader.load_data(args.ipc, use_embedding=True, normalize_data=True)
+        train_image, train_label = KMeansDataLoader.load_data(args, use_embedding=True, normalize_data=True)
         print(train_image.shape)
         print(train_label.shape)
         print(train_image.max())
@@ -82,6 +83,6 @@ if __name__ == '__main__':
         per_arch_accuracy = evaluator.evaluate(args)
         if per_arch_accuracy[args.model] > current_best:
             current_best = per_arch_accuracy[args.model]
-            torch.save(train_image, str(args.ipc) + 'images.pt')
-            torch.save(train_label, str(args.ipc) + 'label.pt')
+            torch.save(train_image, args.dataset + '_' + str(args.ipc) + 'images.pt')
+            torch.save(train_label, args.dataset + '_' + str(args.ipc) + 'label.pt')
         print("current best accuracy: ", current_best)

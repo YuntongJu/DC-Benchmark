@@ -43,9 +43,16 @@ class KMeansDataLoader:
         return args
 
     @staticmethod
-    def load_data(ipc, use_embedding=True, normalize_data = False):
-        mean = [0.4914, 0.4822, 0.4465]
-        std = [0.2023, 0.1994, 0.2010]
+    def load_data(args, use_embedding=True, normalize_data = False):
+        if args.dataset == 'CIFAR10':
+            num_classes = 10
+            mean = [0.4914, 0.4822, 0.4465]
+            std = [0.2023, 0.1994, 0.2010]
+        elif args.dataset == 'CIFAR100':
+            num_classes = 100
+            mean = [0.5071, 0.4866, 0.4409]
+            std = [0.2673, 0.2564, 0.2762]
+
         if normalize_data:
             transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
         else:
@@ -68,19 +75,19 @@ class KMeansDataLoader:
             labels_all = torch.tensor(labels_all, dtype=torch.long)
             # model_name = 'resnet18'
             model_name = 'convnet'
-            net = NetworkUtils.create_network(model_name).to(args.device)
+            net = NetworkUtils.create_network(model_name, args.dataset).to(args.device)
             # if os.path.exists('data/' + model_name):
             #     net.load_state_dict(torch.load('data/' + model_name))
             # else:
             testloader = torch.utils.data.DataLoader(ds_test, batch_size=256, shuffle=False, num_workers=0)
-            net, acc_train, acc_test = EvaluatorUtils.evaluate_synset(0, net, images_all, labels_all, testloader, args)
+            net, _, _= EvaluatorUtils.evaluate_synset(0, net, images_all, labels_all, testloader, args)
             # torch.save(net.state_dict(), 'data/' + model_name)
 
         feature_map = {}
         data_map = {}
         embed = net.embed
 
-        for i in range(10):
+        for i in range(num_classes):
             feature_map[i] = []
             data_map[i] = []
         for data in ds_train:
@@ -97,7 +104,7 @@ class KMeansDataLoader:
             X = np.array(feature_map[key])
             # print(X.shape)
             # find the kmeans center
-            kmeans = KMeans(n_clusters=ipc, random_state=0, init='k-means++').fit(X)
+            kmeans = KMeans(n_clusters=args.ipc, random_state=0, init='k-means++').fit(X)
             # kmeans = KMedoids(n_clusters=ipc, random_state=0, init='k-medoids++').fit(X)
             # find the samples that are closest to the kmeans center
             # print(kmeans.cluster_centers_.shape)
