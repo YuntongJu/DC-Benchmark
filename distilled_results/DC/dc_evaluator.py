@@ -73,6 +73,10 @@ if __name__ == '__main__':
         data_path = '/home/justincui/dc_benchmark/distilled_results/DC/CIFAR100/IPC' + str(args.ipc) + '/res_DC_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
 
     train_image, train_label = DCDataLoader.load_data(data_path)
+    print(train_image.shape)
+    print(train_label.shape)
+    print(train_image.min())
+    print(train_image.max())
 
     dst_test = EvaluatorUtils.get_testset(args)
 
