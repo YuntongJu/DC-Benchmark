@@ -72,7 +72,7 @@ if __name__ == '__main__':
     print(train_label.shape)
     print(train_image.max())
     print(train_image.min())
-    dst_test = EvaluatorUtils.get_cifar10_testset(args)
+    dst_test = EvaluatorUtils.get_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
     avg_acc = 0.0

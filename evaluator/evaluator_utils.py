@@ -12,7 +12,28 @@ import kornia as K
 from torch.utils.data import Dataset
 from scipy.ndimage.interpolation import rotate as scipyrotate
 
+class Cutout(object):
+    def __init__(self, length, prob=1.0):
+        self.length = length
+        self.prob = prob
 
+    def __call__(self, img):
+        if np.random.binomial(1, self.prob):
+            h, w = img.size(2), img.size(3)
+            mask = np.ones((h, w), np.float32)
+            y = np.random.randint(h)
+            x = np.random.randint(w)
+
+            y1 = np.clip(y - self.length // 2, 0, h)
+            y2 = np.clip(y + self.length // 2, 0, h)
+            x1 = np.clip(x - self.length // 2, 0, w)
+            x2 = np.clip(x + self.length // 2, 0, w)
+
+            mask[y1: y2, x1: x2] = 0.
+            mask = torch.from_numpy(mask).to('cuda')
+            mask = mask.expand_as(img)
+            img *= mask
+        return img
 
 class TensorDataset(Dataset):
     def __init__(self, images, labels): # images: n x c x h x w tensor
@@ -171,6 +192,11 @@ class EvaluatorUtils:
         if args.normalize_data:
             for ch in range(3):
                 normalized_d[:, ch] = (normalized_d[:, ch] - mean[ch])  / std[ch]
+
+        if args.aug == 'cifar_aug':
+            cutout_transform = transforms.Compose([Cutout(16, 1)])
+            normalized_d = cutout_transform(normalized_d)
+
         return normalized_d
 
     @staticmethod
