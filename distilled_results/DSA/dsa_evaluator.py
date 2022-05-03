@@ -6,9 +6,6 @@ from evaluator.evaluator import Evaluator
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
-import tqdm
-import kornia as K
-from torch.utils.data import Dataset
 
 
 class CrossArchEvaluator(Evaluator):
