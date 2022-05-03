@@ -36,15 +36,20 @@ class RandomDataGenerator:
 
     @staticmethod
     def load_data(args):
-        # set random seed
-        #seeting seed to 9 gets us 0.3368 accuracy.
-        if args.normalize_data:
+        if args.dataset == 'CIFAR10':
             mean = [0.4914, 0.4822, 0.4465]
             std = [0.2023, 0.1994, 0.2010]
+        elif args.dataset == 'CIFAR100':
+            mean = [0.5071, 0.4866, 0.4409]
+            std = [0.2673, 0.2564, 0.2762]
+        if args.normalize_data:
             transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
         else:
             transform = transforms.Compose([transforms.ToTensor()])
-        dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
+        if args.dataset == 'CIFAR10':
+            dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
+        elif args.dataset == 'CIFAR100':
+            dst_train = datasets.CIFAR100('data', train=True, download=True, transform=transform)
 
         if args.dataset == 'CIFAR10':
             num_classes = 10
@@ -71,7 +76,8 @@ class RandomDataGenerator:
         sampled_images = []
         sampled_labels = []
         for i in range(num_classes):
-            sampled_images.append(get_images(i, args.ipc))
+            images_per_class = get_images(i, args.ipc)
+            sampled_images.append(images_per_class)
             sampled_labels.append(torch.ones(args.ipc) * i)
         sampled_images = torch.cat(sampled_images)
         sampled_labels = torch.cat(sampled_labels)

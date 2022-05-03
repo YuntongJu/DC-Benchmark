@@ -25,7 +25,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--ipc', type=int, default=50, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--normalize_data', action="store_true", help='whether to normalize the data') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
-        parser.add_argument('--num_eval', type=int, default=5, help='the number of evaluating randomly initialized models')
+        parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
@@ -49,7 +49,7 @@ class CrossArchEvaluator(Evaluator):
 
         per_arch_accuracy = {}
         for model_name in self.config['models']:
-            model = NetworkUtils.create_network(model_name)
+            model = NetworkUtils.create_network(args)
             _, _, test_acc = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
             per_arch_accuracy[model_name] = test_acc
         return per_arch_accuracy
