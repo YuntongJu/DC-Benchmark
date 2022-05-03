@@ -72,6 +72,10 @@ if __name__ == '__main__':
         data_path = '/home/justincui/dc_benchmark/distilled_results/DM/CIFAR100/IPC' + str(args.ipc) + '/res_DM_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
     
     train_image, train_label = DMDataLoader.load_data(data_path)
+    print(train_image.shape)
+    print(train_label.shape)
+    print(train_image.min())
+    print(train_image.max())
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
