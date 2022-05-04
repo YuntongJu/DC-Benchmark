@@ -7,6 +7,7 @@ from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
 import os
+import logging
 
 
 class CrossArchEvaluator(Evaluator):
@@ -41,7 +42,7 @@ class CrossArchEvaluator(Evaluator):
         return args
 
     
-    def evaluate(self, args):
+    def evaluate(self, args, logging):
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
@@ -56,7 +57,7 @@ class CrossArchEvaluator(Evaluator):
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(args)
-            _, _, acc_test= EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            _, _, acc_test= EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args, logging)
             per_arch_accuracy[model_name] = acc_test
         return per_arch_accuracy
         
@@ -66,8 +67,15 @@ if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.DM.dm_data_loader import DMDataLoader
-
     args = CrossArchEvaluator.prepare_args()
+
+    logging.basicConfig(
+        filename = 'dm_' + args.model_name,
+        filemodel = 'a',
+        format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', 
+        level=logging.WARNING
+    )
+
     data_path = ''
     if args.dataset == 'CIFAR10':
         data_path = '/home/justincui/dc_benchmark/distilled_results/DM/CIFAR10/IPC' + str(args.ipc) + '/res_DM_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
@@ -87,6 +95,6 @@ if __name__ == '__main__':
         evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
         result = evaluator.evaluate(args)
         avg_acc += result[args.model]
-    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval, ' ', args.aug)
+    logging.warning("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " dataset: ", args.dataset, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval, ' ', args.aug)
 
     

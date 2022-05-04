@@ -1,4 +1,3 @@
-from multiprocessing import reduction
 import numpy as np
 import time
 import torch
@@ -7,8 +6,6 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 import torchvision
-import tqdm
-import kornia as K
 from torch.utils.data import Dataset
 from scipy.ndimage.interpolation import rotate as scipyrotate
 
@@ -65,7 +62,7 @@ class EvaluatorUtils:
             self.contrast = 0.5
             
     @staticmethod
-    def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args):
+    def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args, logging):
         net = net.to(args.device)
         images_train = images_train.to(args.device)
         labels_train = labels_train.to(args.device)
@@ -73,10 +70,10 @@ class EvaluatorUtils:
         Epoch = int(args.epoch_eval_train)
         lr_schedule = [Epoch//2+1]
         if args.optimizer == 'adam':
-            print("using adam optimizer")
+            logging.info("using adam optimizer")
             optimizer = torch.optim.Adam(net.parameters())
         else:
-            print("using sgd optimizer")
+            logging.info("using sgd optimizer")
             optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
 
         dst_train = TensorDataset(images_train, labels_train)
@@ -85,25 +82,25 @@ class EvaluatorUtils:
         start = time.time()
         criterion = nn.CrossEntropyLoss().to(args.device)
         for ep in range(Epoch+1):
-            loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True, ep=ep)
+            loss_train, acc_train = EvaluatorUtils.epoch('train', trainloader, net, optimizer, criterion, args, aug = True, ep=ep, logging = logging)
             if ep in lr_schedule:
                 lr *= 0.1
                 if args.optimizer == 'adam':
-                    print("using adam optimizer")
+                    logging.info("using adam optimizer")
                     # optimizer = torch.optim.Adam(net.parameters(), lr=lr)
                     pass
                 else:
-                    print("using sgd optimizer")
+                    logging.info("using sgd optimizer")
                     optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
         time_train = time.time() - start
         criterion = nn.CrossEntropyLoss().to(args.device)
-        loss_test, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0)
-        print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
+        _, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0, logging = logging)
+        logging.info('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
 
         return net, acc_train, acc_test
 
     @staticmethod
-    def epoch(mode, dataloader, net, optimizer, criterion, args, aug, ep):
+    def epoch(mode, dataloader, net, optimizer, criterion, args, aug, ep, logging):
         loss_avg, acc_avg, num_exp = 0, 0, 0
         net = net.to(args.device)
         criterion = criterion.to(args.device)
@@ -118,11 +115,11 @@ class EvaluatorUtils:
             if aug:
                 if args.dsa:
                     if i_batch == 0:
-                        print("using dsa")
+                        logging.info("using dsa")
                     img = EvaluatorUtils.DiffAugment(img, args.dsa_strategy, param=args.dsa_param)
                 elif hasattr(args, 'aug') and args.aug != '':
                     if i_batch == 0:
-                        print("using ", args.aug)
+                        logging.info("using ", args.aug)
                     img = EvaluatorUtils.custom_aug(img, args)
                 else:
                     img = EvaluatorUtils.augment(img, args.dc_aug_param, device=args.device)
@@ -152,7 +149,7 @@ class EvaluatorUtils:
 
         loss_avg /= num_exp
         acc_avg /= num_exp
-        print(mode, " epoch:", ep, " , accuracy is:", acc_avg)
+        logging.info(mode, " epoch:", ep, " , accuracy is:", acc_avg)
         return loss_avg, acc_avg
 
     @staticmethod
