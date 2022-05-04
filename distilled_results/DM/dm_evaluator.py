@@ -6,6 +6,7 @@ from evaluator.evaluator import Evaluator
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
+import os
 
 
 class CrossArchEvaluator(Evaluator):
@@ -17,13 +18,14 @@ class CrossArchEvaluator(Evaluator):
     @staticmethod
     def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
+        parser.add_argument('--gpu', type=str, default='auto', help='gpu ID(s)')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--ipc', type=int, default=1, help='image(s) per class')
         parser.add_argument('--dsa', action="store_true", help='dsa')
         parser.add_argument('--aug', type=str, default='', help='augmentation method')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
-        parser.add_argument('--num_eval', type=int, default=5, help='the number of evaluating randomly initialized models')
+        parser.add_argument('--num_eval', type=int, default=10, help='the number of evaluating randomly initialized models')
         parser.add_argument('--normalize_data', action="store_true", help='the number of evaluating randomly initialized models')
         parser.add_argument('--optimizer', type=str, default='sgd', help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
@@ -33,7 +35,8 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_scale_rotate', help='differentiable Siamese augmentation strategy')
         args = parser.parse_args()
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
-        args.device = 'cuda'
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(EvaluatorUtils.pick_gpu_lowest_memory()) if args.gpu == 'auto' else args.gpu
+        args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         return args
 
     
