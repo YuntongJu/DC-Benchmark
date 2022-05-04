@@ -6,6 +6,7 @@ from evaluator.evaluator import Evaluator
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
+import os
 
 
 class CrossArchEvaluator(Evaluator):
@@ -17,6 +18,7 @@ class CrossArchEvaluator(Evaluator):
     @staticmethod
     def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
+        parser.add_argument('--gpu', type=str, default='auto', help='gpu ID(s)')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--ipc', type=int, default=10, help='image(s) per class')
@@ -35,8 +37,9 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate', help='differentiable Siamese augmentation strategy')
         args = parser.parse_args()
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
-        # args.dc_aug_param['strategy'] = 'crop_scale_rotate_noise'
         args.device = 'cuda'
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(EvaluatorUtils.pick_gpu_lowest_memory()) if args.gpu == 'auto' else args.gpu
+        args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         return args
 
     
