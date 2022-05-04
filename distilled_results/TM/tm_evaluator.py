@@ -24,7 +24,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--aug', type=str, default='', help='augmentation method')
         parser.add_argument('--eval_mode', type=str, default='S',
                             help='eval_mode, check utils.py for more info')
-        parser.add_argument('--num_eval', type=int, default=5, help='how many networks to evaluate on')
+        parser.add_argument('--num_eval', type=int, default=10, help='how many networks to evaluate on')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--lr_net', type=float, default=0.014, help='initialization for synthetic learning rate')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
