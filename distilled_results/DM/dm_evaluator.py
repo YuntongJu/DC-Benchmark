@@ -70,8 +70,8 @@ if __name__ == '__main__':
     args = CrossArchEvaluator.prepare_args()
 
     logging.basicConfig(
-        filename = 'dm_' + args.model_name,
-        filemodel = 'a',
+        filename = 'dm_' + args.model + '.log',
+        filemode = 'a',
         format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', 
         level=logging.WARNING
     )
@@ -93,8 +93,16 @@ if __name__ == '__main__':
     avg_acc = 0.0
     for i in range(args.num_eval):
         evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
-        result = evaluator.evaluate(args)
+        result = evaluator.evaluate(args, logging)
         avg_acc += result[args.model]
-    logging.warning("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " dataset: ", args.dataset, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval, ' ', args.aug)
+    logging.warning("final acc is: %.4f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+        avg_acc / args.num_eval, 
+        args.dataset, 
+        args.ipc,
+        args.dsa,
+        args.num_eval,
+        args.aug,
+        args.model
+        )
 
     
