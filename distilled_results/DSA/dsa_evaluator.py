@@ -7,6 +7,7 @@ from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
 import os
+import logging
 
 
 class CrossArchEvaluator(Evaluator):
@@ -18,7 +19,6 @@ class CrossArchEvaluator(Evaluator):
     @staticmethod
     def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
-        parser.add_argument('--verbose', action="store_true",  help='whether to output extra logging')
         parser.add_argument('--gpu', type=str, default='auto', help='gpu ID(s)')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='convnet', help='model')
@@ -41,7 +41,7 @@ class CrossArchEvaluator(Evaluator):
         return args
 
     
-    def evaluate(self, args):
+    def evaluate(self, args, logging):
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
             args.epoch_eval_train = 1000
@@ -55,7 +55,7 @@ class CrossArchEvaluator(Evaluator):
         per_arch_accuracy = {}
         for model_name in self.config['models']:
             model = NetworkUtils.create_network(args)
-            _, _, test_acc = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+            _, _, test_acc = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args, logging)
             per_arch_accuracy[model_name]  = test_acc
         return per_arch_accuracy
 
@@ -81,6 +81,14 @@ if __name__ == '__main__':
     avg_acc = 0.0
     for i in range(args.num_eval):
         print("current iteration: ", i)
-        per_arch_accuracy = evaluator.evaluate(args)
+        per_arch_accuracy = evaluator.evaluate(args, logging)
         avg_acc += per_arch_accuracy[args.model]
-    print("final average result is: ", avg_acc / args.num_eval, " for ", args.model, " and IPC ", args.ipc, " DSA:", args.dsa, " num eval:", args.num_eval, ' ', args.aug)
+    logging.warning("final acc is: %.4f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+        avg_acc / args.num_eval, 
+        args.dataset, 
+        args.ipc,
+        args.dsa,
+        args.num_eval,
+        args.aug,
+        args.model
+    )
