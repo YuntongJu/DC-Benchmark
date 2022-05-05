@@ -66,6 +66,14 @@ if __name__ == '__main__':
     from distilled_results.DC.dc_data_loader import DCDataLoader
 
     args = CrossArchEvaluator.prepare_args()
+
+    logging.basicConfig(
+        filename = 'dsa_' + args.model + '.log',
+        filemode = 'a',
+        format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', 
+        level=logging.WARNING
+    )
+
     data_path = ''
     if args.dataset == 'CIFAR10':
         data_path = '/home/justincui/dc_benchmark/distilled_results/DSA/CIFAR10/IPC' + str(args.ipc) + '/res_DSA_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
@@ -74,7 +82,6 @@ if __name__ == '__main__':
 
     train_image, train_label = DCDataLoader.load_data(data_path)
 
-    # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
