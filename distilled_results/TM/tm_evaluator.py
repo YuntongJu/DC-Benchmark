@@ -18,7 +18,6 @@ class CrossArchEvaluator(Evaluator):
     @staticmethod
     def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
-        parser.add_argument('--verbose', action="store_true",  help='whether to output extra logging')
         parser.add_argument('--gpu', type=str, default='auto', help='gpu ID(s)')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='convnet', help='model')
