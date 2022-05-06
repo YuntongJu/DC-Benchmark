@@ -11,23 +11,26 @@ class NetworkUtils:
         channel = 3
         model_name = args.model
         if args.dataset == 'CIFAR10':
+            im_size = (32, 32)
             num_classes = 10
         elif args.dataset == 'CIFAR100':
+            im_size = (32, 32)
             num_classes = 100
         elif args.dataset == 'tinyimagenet':
+            im_size = (64, 64)
             num_classes = 200
         if model_name == 'convnet':
             net_width, net_depth, net_act, net_norm, net_pooling = 128, 3, 'relu', 'instancenorm', 'avgpooling'
-            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = (32,32))
+            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = im_size)
         if model_name == 'convnet4':
             net_width, net_depth, net_act, net_norm, net_pooling = 128, 4, 'relu', 'instancenorm', 'avgpooling'
-            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = (32,32))
+            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = im_size)
         if model_name == 'convnet2':
             net_width, net_depth, net_act, net_norm, net_pooling = 128, 2, 'relu', 'instancenorm', 'avgpooling'
-            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = (32,32))
+            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = im_size)
         if model_name == 'convnet1':
             net_width, net_depth, net_act, net_norm, net_pooling = 128, 1, 'relu', 'instancenorm', 'avgpooling'
-            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = (32,32))
+            return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = im_size)
         elif model_name == 'alexnet':
             return AlexNet(channel, num_classes)
         elif model_name == 'resnet18':
