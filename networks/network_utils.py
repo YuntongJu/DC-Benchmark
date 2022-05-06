@@ -3,7 +3,7 @@ sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 
 from networks.convnet import ConvNet
 from networks.alexnet import AlexNet
-from networks.resnet import ResNet, ResNet18
+from networks.resnet import ResNet, ResNet101, ResNet18
 class NetworkUtils:
 
     @staticmethod
@@ -32,4 +32,6 @@ class NetworkUtils:
             return AlexNet(channel, num_classes)
         elif model_name == 'resnet18':
             return ResNet18(channel=channel, num_classes=num_classes)
+        elif model_name == 'resnet101':
+            return ResNet101(channel=channel, num_classes=num_classes)
         return None
