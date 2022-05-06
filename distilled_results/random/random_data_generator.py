@@ -57,7 +57,8 @@ class RandomDataGenerator:
         elif args.dataset == 'CIFAR100':
             dst_train = datasets.CIFAR100('data', train=True, download=True, transform=transform)
         elif args.dataset == 'tinyimagenet':
-            dst_train = 
+            dst_train = datasets.ImageFolder(os.path.join('/home/justincui/tiny-imagenet-200', "train"), transform=transform) # no augmentation
+            # dst_test = datasets.ImageFolder(os.path.join(data_path, "val", "images"), transform=transform)
 
         images_all = []
         labels_all = []

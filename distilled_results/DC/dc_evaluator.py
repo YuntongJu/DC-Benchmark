@@ -78,7 +78,6 @@ if __name__ == '__main__':
         level=logging.WARNING
     )
 
-
     data_path = ''
     if args.dataset == 'CIFAR10':
         data_path = '/home/justincui/dc_benchmark/distilled_results/DC/CIFAR10/IPC' + str(args.ipc) + '/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
