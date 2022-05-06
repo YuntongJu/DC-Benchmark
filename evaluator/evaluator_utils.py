@@ -163,7 +163,10 @@ class EvaluatorUtils:
             elif args.dataset == 'CIFAR100':
                 mean = [0.5071, 0.4866, 0.4409]
                 std = [0.2673, 0.2564, 0.2762]
-                
+            elif args.dataset == 'tinyimagenet':
+                mean = [0.485, 0.456, 0.406]
+                std = [0.229, 0.224, 0.225]
+
             for ch in range(3):
                 image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
         image_syn_vis[image_syn_vis<0] = 0.0
@@ -480,6 +483,6 @@ class EvaluatorUtils:
                 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
-            dst_test = datasets.ImageFolder(os.path.join('/home/justincui/tiny-imagenet-200', "val", "images"), transform=transform)
+            dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "val", "images"), transform=transform)
 
         return dst_test
