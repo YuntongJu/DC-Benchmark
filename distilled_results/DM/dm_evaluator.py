@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/justincui/dc_benchmark')
+sys.path.append('../../../dc_benchmark')
 
 import torch
 from evaluator.evaluator import Evaluator
@@ -77,10 +77,12 @@ if __name__ == '__main__':
     )
 
     data_path = ''
-    if args.dataset == 'CIFAR10':
-        data_path = '/home/justincui/dc_benchmark/distilled_results/DM/CIFAR10/IPC' + str(args.ipc) + '/res_DM_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
-    elif args.dataset == 'CIFAR100':
-        data_path = '/home/justincui/dc_benchmark/distilled_results/DM/CIFAR100/IPC' + str(args.ipc) + '/res_DM_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
+    data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DM/' + args.dataset + '/IPC' + str(args.ipc) + '/res_DM_' + args.dataset
+    if args.dataset == 'tinyimagenet':
+        data_path += '_ConvNetD4_'
+    else:
+        data_path += '_ConvNet_'
+    data_path += str(args.ipc) + 'ipc.pt'
     
     train_image, train_label = DMDataLoader.load_data(data_path)
     print(train_image.shape)
