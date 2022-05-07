@@ -90,6 +90,7 @@ if __name__ == '__main__':
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
     avg_acc = 0.0
     for i in range(args.num_eval):
+        print("current iteration:", i)
         per_arch_accuracy = evaluator.evaluate(args, logging)
         avg_acc += per_arch_accuracy[args.model]
 

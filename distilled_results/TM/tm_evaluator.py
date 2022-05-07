@@ -77,7 +77,10 @@ if __name__ == '__main__':
 
     data_path = os.getcwd() + '/' + args.dataset + '/IPC' + str(args.ipc) + '/'
 
-    train_image, train_label = TMDataLoader.load_data(data_path + 'images_best.pt', data_path + 'labels_best.pt')
+    if args.dataset == 'tinyimagenet' and args.ipc == 50:
+        train_image, train_label = TMDataLoader.load_data(args.dataset, args.ipc, data_path + 'images_best', data_path + 'labels_best')
+    else:
+        train_image, train_label = TMDataLoader.load_data(args.dataset, args.ipc, data_path + 'images_best.pt', data_path + 'labels_best.pt')
     print(train_image.shape)
     print(train_label.shape)
     print(train_image.min())
