@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/justincui/dc_benchmark')
+sys.path.append('../../../dc_benchmark')
 
 import torch
 from evaluator.evaluator import Evaluator
@@ -19,7 +19,6 @@ class CrossArchEvaluator(Evaluator):
     @staticmethod
     def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
-        parser.add_argument('--verbose', action="store_true",  help='whether to output extra logging')
         parser.add_argument('--gpu', type=str, default='auto', help='gpu ID(s)')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
         parser.add_argument('--model', type=str, default='convnet', help='model')
@@ -30,7 +29,6 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--num_eval', type=int, default=10, help='the number of evaluating randomly initialized models')
         parser.add_argument('--normalize_data', action="store_true", help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
-        parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
         parser.add_argument('--optimizer', type=str, default="sgd", help='learning rate for updating synthetic images')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
@@ -83,6 +81,9 @@ if __name__ == '__main__':
         data_path = '/home/justincui/dc_benchmark/distilled_results/DC/CIFAR10/IPC' + str(args.ipc) + '/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'CIFAR100':
         data_path = '/home/justincui/dc_benchmark/distilled_results/DC/CIFAR100/IPC' + str(args.ipc) + '/res_DC_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
+    elif args.dataset == 'tinyimagenet':
+        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/tinyimagenet/IPC' + str(args.ipc) + '/res_DC_tinyimagenet_ConvNetD4_' + str(args.ipc) + 'ipc.pt'
+
 
     train_image, train_label = DCDataLoader.load_data(data_path)
     print(train_image.shape)
