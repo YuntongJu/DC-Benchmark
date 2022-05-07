@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 ''' ResNet '''
 
@@ -101,12 +102,52 @@ class ResNet(nn.Module):
         out = out.view(out.size(0), -1)
         return out
 
+class ResNetImageNet(nn.Module):
+    def __init__(self, block, num_blocks, channel=3, num_classes=10, norm='instancenorm'):
+        super(ResNetImageNet, self).__init__()
+        self.in_planes = 64
+        self.norm = norm
+
+        self.conv1 = nn.Conv2d(channel, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.bn1 = nn.GroupNorm(64, 64, affine=True) if self.norm == 'instancenorm' else nn.BatchNorm2d(64)
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
+        self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
+        self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
+        self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.classifier = nn.Linear(512*block.expansion, num_classes)
+
+    def _make_layer(self, block, planes, num_blocks, stride):
+        strides = [stride] + [1]*(num_blocks-1)
+        layers = []
+        for stride in strides:
+            layers.append(block(self.in_planes, planes, stride, self.norm))
+            self.in_planes = planes * block.expansion
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.maxpool(out)
+        out = self.layer1(out)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        # out = F.avg_pool2d(out, 4)
+        # out = out.view(out.size(0), -1)
+        out = self.avgpool(out)
+        out = torch.flatten(out, 1)
+        out = self.classifier(out)
+        return out
 
 def ResNet18BN(channel, num_classes):
     return ResNet(BasicBlock, [2,2,2,2], channel=channel, num_classes=num_classes, norm='batchnorm')
 
 def ResNet18(channel, num_classes):
     return ResNet(BasicBlock, [2,2,2,2], channel=channel, num_classes=num_classes)
+
+def ResNet18ImageNet(channel, num_classes):
+    return ResNetImageNet(BasicBlock, [2,2,2,2], channel=channel, num_classes=num_classes)
 
 def ResNet34(channel, num_classes):
     return ResNet(BasicBlock, [3,4,6,3], channel=channel, num_classes=num_classes)
