@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/justincui/dc_benchmark')
+sys.path.append('../../../dc_benchmark')
 
 import torch
 from evaluator.evaluator import Evaluator
@@ -63,7 +63,7 @@ class CrossArchEvaluator(Evaluator):
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    from distilled_results.DC.dc_data_loader import DCDataLoader
+    from distilled_results.DSA.dsa_data_loader import DSADataLoader 
 
     args = CrossArchEvaluator.prepare_args()
 
@@ -76,11 +76,14 @@ if __name__ == '__main__':
 
     data_path = ''
     if args.dataset == 'CIFAR10':
-        data_path = '/home/justincui/dc_benchmark/distilled_results/DSA/CIFAR10/IPC' + str(args.ipc) + '/res_DSA_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
+        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DSA/CIFAR10/IPC' + str(args.ipc) + '/res_DSA_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'CIFAR100':
-        data_path = '/home/justincui/dc_benchmark/distilled_results/DSA/CIFAR100/IPC' + str(args.ipc) + '/res_DSA_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
+        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DSA/CIFAR100/IPC' + str(args.ipc) + '/res_DSA_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
+    elif args.dataset == 'tinyimagenet':
+        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DSA/tinyimagenet/IPC' + str(args.ipc) + '/res_DSA_tinyimagenet_ConvNetD4_' + str(args.ipc) + 'ipc.pt'
+    
 
-    train_image, train_label = DCDataLoader.load_data(data_path)
+    train_image, train_label = DSADataLoader.load_data(data_path)
 
     dst_test = EvaluatorUtils.get_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)

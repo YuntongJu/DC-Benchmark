@@ -78,9 +78,9 @@ if __name__ == '__main__':
 
     data_path = ''
     if args.dataset == 'CIFAR10':
-        data_path = '/home/justincui/dc_benchmark/distilled_results/DC/CIFAR10/IPC' + str(args.ipc) + '/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
+        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR10/IPC' + str(args.ipc) + '/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'CIFAR100':
-        data_path = '/home/justincui/dc_benchmark/distilled_results/DC/CIFAR100/IPC' + str(args.ipc) + '/res_DC_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
+        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR100/IPC' + str(args.ipc) + '/res_DC_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'tinyimagenet':
         data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/tinyimagenet/IPC' + str(args.ipc) + '/res_DC_tinyimagenet_ConvNetD4_' + str(args.ipc) + 'ipc.pt'
 
