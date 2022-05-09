@@ -67,19 +67,21 @@ class KMeansDataLoader:
         if use_embedding:
             print("use embedding")
             args = KMeansDataLoader.prepare_args()
-            args.epoch_eval_train = 0
+            args.epoch_eval_train = 5
+            print("embedding model", args.model)
+            net = NetworkUtils.create_network(args.model, args.dataset).to(args.device)
             images_all = [torch.unsqueeze(ds_train[i][0], dim=0) for i in range(len(ds_train))]
             labels_all = [ds_train[i][1] for i in range(len(ds_train))]
 
             images_all = torch.cat(images_all, dim=0)
             labels_all = torch.tensor(labels_all, dtype=torch.long)
-            net = NetworkUtils.create_network(args.model, args.dataset).to(args.device)
             # if os.path.exists('data/' + model_name):
             #     net.load_state_dict(torch.load('data/' + model_name))
             # else:
             testloader = torch.utils.data.DataLoader(ds_test, batch_size=256, shuffle=False, num_workers=0)
+            print("----------being training the embedding model: {}-------".format(args.model))
             net, _, _= EvaluatorUtils.evaluate_synset(0, net, images_all, labels_all, testloader, args)
-            # torch.save(net.state_dict(), 'data/' + model_name)
+            print("----------end training the embedding model: {}-------".format(args.model))
 
         feature_map = {}
         data_map = {}
