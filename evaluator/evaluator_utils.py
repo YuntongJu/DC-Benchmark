@@ -173,14 +173,18 @@ class EvaluatorUtils:
         image_syn_vis[image_syn_vis>1] = 1.0
 
         normalized_d = image_syn_vis * 255
+        if args.dataset == 'tinyimagenet':
+            size = 64
+        else:
+            size = 32
         if args.aug == 'autoaug':
             data_transforms = transforms.Compose([transforms.AutoAugment(policy=torchvision.transforms.AutoAugmentPolicy.CIFAR10)])
         elif args.aug == 'randaug':
             data_transforms = transforms.Compose([transforms.RandAugment(num_ops=1)])
         elif args.aug == 'imagenet_aug':
-            data_transforms = transforms.Compose([transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2)])
+            data_transforms = transforms.Compose([transforms.RandomCrop(size, padding=4), transforms.RandomHorizontalFlip(), transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2)])
         elif args.aug == 'cifar_aug':
-            data_transforms = transforms.Compose([transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip()])
+            data_transforms = transforms.Compose([transforms.RandomCrop(size, padding=4), transforms.RandomHorizontalFlip()])
         else:
             exit('unknown augmentation method: %s'%args.aug)
         normalized_d = data_transforms(normalized_d.to(torch.uint8))
@@ -486,3 +490,10 @@ class EvaluatorUtils:
             dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "val", "images"), transform=transform)
 
         return dst_test
+
+    @staticmethod
+    def compute_std_mean(scores):
+        scores = np.array(scores)
+        std = np.std(scores)
+        mean = np.mean(scores)
+        return mean, std

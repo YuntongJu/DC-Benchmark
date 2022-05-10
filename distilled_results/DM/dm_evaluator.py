@@ -33,7 +33,6 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
         parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
         parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
-        parser.add_argument('--init', type=str, default='real', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
         parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_scale_rotate', help='differentiable Siamese augmentation strategy')
         args = parser.parse_args()
         args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
@@ -92,13 +91,14 @@ if __name__ == '__main__':
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_testset(args)
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    avg_acc = 0.0
+    avg_acc = []
     for i in range(args.num_eval):
         evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
         result = evaluator.evaluate(args, logging)
-        avg_acc += result[args.model]
-    logging.warning("final acc is: %.4f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
-        avg_acc / args.num_eval, 
+        avg_acc.append(result[args.model])
+    mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
+    logging.warning("DM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+        mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,

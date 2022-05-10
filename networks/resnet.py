@@ -160,3 +160,6 @@ def ResNet101(channel, num_classes):
 
 def ResNet152(channel, num_classes):
     return ResNet(Bottleneck, [3,8,36,3], channel=channel, num_classes=num_classes)
+
+def ResNet152Imagenet(channel, num_classes):
+    return ResNetImageNet(Bottleneck, [3,8,36,3], channel=channel, num_classes=num_classes)

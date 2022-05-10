@@ -68,7 +68,7 @@ if __name__ == '__main__':
     args = CrossArchEvaluator.prepare_args()
 
     logging.basicConfig(
-        filename = 'kmeans' + args.model + '.log',
+        filename = 'kmeans_' + args.model + '.log',
         filemode = 'a',
         format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', 
         level=logging.WARNING
@@ -84,15 +84,17 @@ if __name__ == '__main__':
     print(train_image.min())
     # args.optimizer = 'adam'
     dst_test = EvaluatorUtils.get_testset(args)
-    avg_acc = 0.0
+    avg_acc = []
     for i in range(args.num_eval):
         print("current run is: ", i)
         testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
         evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
-        per_arch_acc = evaluator.evaluate(args, logging)
-        avg_acc += per_arch_acc[args.model]
-    logging.warning("final acc is: %.4f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
-        avg_acc / args.num_eval, 
+        result = evaluator.evaluate(args, logging)
+        avg_acc.append(result[args.model])
+
+    mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
+    logging.warning("Kmeans: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+        mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,

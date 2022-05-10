@@ -96,13 +96,14 @@ if __name__ == '__main__':
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
     evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
 
-    avg_acc = 0.0
+    avg_acc = []
     for i in range(args.num_eval):
         print("current iteration: ", i)
-        per_arch_accuracy = evaluator.evaluate(args, logging)
-        avg_acc += per_arch_accuracy[args.model]
-    logging.warning("final acc is: %.4f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
-        avg_acc / args.num_eval, 
+        result = evaluator.evaluate(args, logging)
+        avg_acc.append(result[args.model])
+    mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
+    logging.warning("DC: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+        mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
