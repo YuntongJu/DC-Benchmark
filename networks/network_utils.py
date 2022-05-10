@@ -3,6 +3,7 @@ sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 
 from networks.convnet import ConvNet
 from networks.alexnet import AlexNet
+from networks.mlp import MLP
 from networks.resnet import ResNet101, ResNet18, ResNet18ImageNet
 class NetworkUtils:
 
@@ -19,6 +20,8 @@ class NetworkUtils:
         elif args.dataset == 'tinyimagenet':
             im_size = (64, 64)
             num_classes = 200
+        if model_name == 'mlp':
+            return MLP(channel, num_classes, im_size)
         if model_name == 'convnet':
             net_width, net_depth, net_act, net_norm, net_pooling = 128, 3, 'relu', 'instancenorm', 'avgpooling'
             return ConvNet(channel, num_classes, net_width, net_depth, net_act, net_norm, net_pooling, im_size = im_size)

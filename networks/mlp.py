@@ -1,8 +1,11 @@
+import torch.nn as nn
+import torch.nn.functional as F
+
 ''' MLP '''
 class MLP(nn.Module):
-    def __init__(self, channel, num_classes):
+    def __init__(self, channel, num_classes, im_size):
         super(MLP, self).__init__()
-        self.fc_1 = nn.Linear(28*28*1 if channel==1 else 32*32*3, 128)
+        self.fc_1 = nn.Linear(im_size[0] * im_size[1]*channel, 128)
         self.fc_2 = nn.Linear(128, 128)
         self.fc_3 = nn.Linear(128, num_classes)
 
