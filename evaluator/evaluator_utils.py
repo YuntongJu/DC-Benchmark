@@ -105,7 +105,7 @@ class EvaluatorUtils:
                 if args.dsa:
                     # import pdb
                     # pdb.set_trace()
-                    if i_batch == 0:
+                    if i_batch == 0 and ep == 0:
                         print("using dsa")
                     img = EvaluatorUtils.DiffAugment(img, args.dsa_strategy, param=args.dsa_param)
                 elif hasattr(args, 'autoaug') and args.autoaug:

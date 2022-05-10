@@ -9,6 +9,9 @@ import argparse
 import tqdm
 import kornia as K
 from torch.utils.data import Dataset
+import os
+import copy
+from torchvision.utils import save_image
 
 
 class CrossArchEvaluator(Evaluator):
@@ -58,11 +61,15 @@ if __name__ == '__main__':
     from distilled_results.Kmeans.kmeans_data_loader import KMeansDataLoader
 
     args = CrossArchEvaluator.prepare_args()
-    dst_test = EvaluatorUtils.get_testset(args)
+    # dst_test = EvaluatorUtils.get_testset(args)
     current_best = 0.0
     args.normalize_data = True
+    if args.dataset == 'tinyimagenet':
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
+        channel = 3
     while True:
-        train_image, train_label = KMeansDataLoader.load_data(args, use_embedding=True, normalize_data=True)
+        train_image, train_label, dst_test = KMeansDataLoader.load_data(args, use_embedding=True, normalize_data=True)
         args.zca = False
         args.dsa = True
         args.normalize_data = True
@@ -75,8 +82,20 @@ if __name__ == '__main__':
         evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':[args.model]})
         per_arch_accuracy = evaluator.evaluate(args)
         if per_arch_accuracy[args.model] > current_best:
+            prev_prefix = '{}_{}_{}_'.format(args.dataset, args.ipc, current_best)
+            if os.path.exists(prev_prefix + "images.pt"):
+                os.remove(prev_prefix + "images.pt")
+            if os.path.exists(prev_prefix + "label.pt"):
+                os.remove(prev_prefix + "label.pt")
+
             current_best = per_arch_accuracy[args.model]
             output_prefix = '{}_{}_{}_'.format(args.dataset, args.ipc, current_best)
             torch.save(train_image,  output_prefix+  'images.pt')
             torch.save(train_label, output_prefix + 'label.pt')
+            image_syn_vis = copy.deepcopy(train_image.detach().cpu())
+            for ch in range(channel):
+                image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
+            image_syn_vis[image_syn_vis<0] = 0.0
+            image_syn_vis[image_syn_vis>1] = 1.0
+            save_image(image_syn_vis, "IPC_" + str(args.ipc) + "_best_image.png", nrow=args.ipc) # Trying normalize = True/False may get better visual effects.
         print("current best accuracy: ", current_best)

@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
+sys.path.append('../../../dc_benchmark')
 
 import torch
 from torchvision import datasets, transforms
@@ -10,6 +10,8 @@ import os
 
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
+from torchvision.utils import save_image
+
 
 class KMeansDataLoader:
 
@@ -35,7 +37,7 @@ class KMeansDataLoader:
         return args
 
     @staticmethod
-    def load_data(args, use_embedding=True, normalize_data = False):
+    def load_data(args, use_embedding=True, normalize_data = True):
         if args.dataset == 'CIFAR10':
             num_classes = 10
             mean = [0.4914, 0.4822, 0.4465]
@@ -67,7 +69,9 @@ class KMeansDataLoader:
         if use_embedding:
             print("use embedding")
             args = KMeansDataLoader.prepare_args()
-            args.epoch_eval_train = 5
+            args.epoch_eval_train = 0
+            args.dsa = False
+            # args.model = "convnet"
             print("embedding model", args.model)
             net = NetworkUtils.create_network(args.model, args.dataset).to(args.device)
             images_all = [torch.unsqueeze(ds_train[i][0], dim=0) for i in range(len(ds_train))]
@@ -85,7 +89,8 @@ class KMeansDataLoader:
 
         feature_map = {}
         data_map = {}
-        embed = net.embed
+        if use_embedding:
+            embed = net.embed
 
         for i in range(num_classes):
             feature_map[i] = []
@@ -95,7 +100,10 @@ class KMeansDataLoader:
             if use_embedding:
                 feature_map[data[1]].append(embed(torch.unsqueeze(data[0].to(args.device), dim=0)).squeeze().cpu().detach().numpy())
             else:
-                feature_map[data[1]].append(data[0].resize(3 * 32 * 32).numpy())
+                if args.dataset == 'tinyimagenet':
+                    feature_map[data[1]].append(data[0].resize(3 * 64 * 64).numpy())
+                else:
+                    feature_map[data[1]].append(data[0].resize(3 * 32 * 32).numpy())
 
         # Find cluster centers using KMeans.
         images = []
@@ -104,7 +112,9 @@ class KMeansDataLoader:
             X = np.array(feature_map[key])
             # print(X.shape)
             # find the kmeans center
-            kmeans = KMeans(n_clusters=args.ipc, random_state=0, init='k-means++').fit(X)
+            # random state = 1, accurac = 0.0101 convnet
+
+            kmeans = KMeans(n_clusters=args.ipc, init='k-means++', n_init=50).fit(X)
             # kmeans = KMedoids(n_clusters=ipc, random_state=0, init='k-medoids++').fit(X)
             # find the samples that are closest to the kmeans center
             # print(kmeans.cluster_centers_.shape)
@@ -125,12 +135,23 @@ class KMeansDataLoader:
         images = torch.cat(images)
         labels = torch.Tensor(labels)
         print("load data ready")
-        return images, labels
+        return images, labels, ds_test
 
 
 
 if __name__ == '__main__':
-    images, labels = KMeansDataLoader.load_data(1)
-    print(images.shape)
-    print(labels.shape)
+    data = torch.load("/home/justincui/dc_benchmark/distilled_results/Kmeans/tinyimagenet_1_0.0101_images.pt")
+    print(data.max())
+    print(data.min())
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
+    image_syn_vis = data
+    for ch in range(3):
+        image_syn_vis[:, ch] = image_syn_vis[:, ch]  * std[ch] + mean[ch]
+        # image_syn_vis[image_syn_vis<0] = 0.0
+        # image_syn_vis[image_syn_vis>1] = 1.0
+    print(image_syn_vis.max())
+    print(image_syn_vis.min())
+    save_image(image_syn_vis, "test.png", nrow=1) # Trying normalize = True/False may get better visual effects.
+
     
