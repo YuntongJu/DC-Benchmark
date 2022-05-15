@@ -107,4 +107,14 @@ if __name__ == '__main__':
         args.model
     )
 
+    print("DM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
+        (mean * 100, std * 100, 
+        args.dataset, 
+        args.ipc,
+        args.dsa,
+        args.num_eval,
+        args.aug,
+        args.model)
+    )
+
     

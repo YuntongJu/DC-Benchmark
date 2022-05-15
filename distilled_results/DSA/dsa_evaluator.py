@@ -24,6 +24,7 @@ class CrossArchEvaluator(Evaluator):
         parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--ipc', type=int, default=10, help='image(s) per class')
         parser.add_argument('--dsa', action="store_true", help='dsa')
+        parser.add_argument('--print', action="store_true", help='print to termimal')
         parser.add_argument('--aug', type=str, default='', help='augmentation method')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_eval', type=int, default=10, help='the number of evaluating randomly initialized models')
@@ -105,7 +106,7 @@ if __name__ == '__main__':
         args.model
     )
 
-    print("Kmeans: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
+    print("DSA: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
         (mean * 100, 
         std * 100, 
         args.dataset, 
