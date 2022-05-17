@@ -67,10 +67,7 @@ if __name__ == '__main__':
     from distilled_results.whole_dataset.data_loader import WholeDataLoader
 
     args = CrossArchEvaluator.prepare_args()
-    args.zca = False
-    args.dsa = False
-    args.autoaug = False
-    # args.optimizer = 'adam'
+    args.dsa = True
     train_image, train_label = WholeDataLoader.load_data('cifar10')
     print(train_image.shape)
     print(train_label.shape)

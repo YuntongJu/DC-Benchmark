@@ -97,6 +97,9 @@ class EvaluatorUtils:
         criterion = nn.CrossEntropyLoss().to(args.device)
         _, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0, logging = logging)
         logging.info('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
+        if hasattr(args, 'print') and args.print:
+            print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
+
 
         return net, acc_train, acc_test
 
@@ -150,7 +153,7 @@ class EvaluatorUtils:
 
         loss_avg /= num_exp
         acc_avg /= num_exp
-        logging.info(mode, " epoch:", ep, " , accuracy is:", acc_avg)
+        logging.info("mode: %s epoch %d accuracy is: %.2f, loss: %.2f", mode, ep, acc_avg, loss_avg)
         return loss_avg, acc_avg
 
     @staticmethod
@@ -490,6 +493,39 @@ class EvaluatorUtils:
             dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "val", "images"), transform=transform)
 
         return dst_test
+
+    @staticmethod
+    def get_dataset(args):
+        if args.dataset == 'CIFAR10':
+            mean = [0.4914, 0.4822, 0.4465]
+            std = [0.2023, 0.1994, 0.2010]
+            if args.normalize_data:
+                transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+            else:
+                transform = transforms.Compose([transforms.ToTensor()])
+
+            dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
+            dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+        elif args.dataset == 'CIFAR100':
+            mean = [0.5071, 0.4866, 0.4409]
+            std = [0.2673, 0.2564, 0.2762]
+            if args.normalize_data:
+                transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+            else:
+                transform = transforms.Compose([transforms.ToTensor()])
+            dst_train = datasets.CIFAR100('data', train=True, download=True, transform=transform)
+            dst_test = datasets.CIFAR100('data', train=False, download=True, transform=transform)
+        elif args.dataset == 'tinyimagenet':
+            mean = [0.485, 0.456, 0.406]
+            std = [0.229, 0.224, 0.225]
+            if args.normalize_data:
+                transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+            else:
+                transform = transforms.Compose([transforms.ToTensor()])
+            dst_train = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "train", "images"), transform=transform)
+            dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "val", "images"), transform=transform)
+
+        return dst_train, dst_test
 
     @staticmethod
     def compute_std_mean(scores):
