@@ -181,7 +181,10 @@ class EvaluatorUtils:
         else:
             size = 32
         if args.aug == 'autoaug':
-            data_transforms = transforms.Compose([transforms.AutoAugment(policy=torchvision.transforms.AutoAugmentPolicy.CIFAR10)])
+            if args.dataset == 'tinyimagenet':
+                data_transforms = transforms.Compose([transforms.AutoAugment(policy=torchvision.transforms.AutoAugmentPolicy.IMAGENET)])
+            else:
+                data_transforms = transforms.Compose([transforms.AutoAugment(policy=torchvision.transforms.AutoAugmentPolicy.CIFAR10)])
         elif args.aug == 'randaug':
             data_transforms = transforms.Compose([transforms.RandAugment(num_ops=1)])
         elif args.aug == 'imagenet_aug':
