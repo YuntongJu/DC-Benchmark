@@ -34,7 +34,8 @@ We incorparete the standard NAS-Bench-201 library into our codebase.
 You can start a simple NAS experiment by running the following command
 ```
 cd darts-pt
-bash darts-201.sh
+bash darts-201.sh --dc_method tm
 ```
+- dc_method: which dataset condensation method to test, choose between random, kmeans-emb, dc, dsa, dm, tm
 For the detailed setup, please refer to [DARTS-PT
 ](https://github.com/ruocwang/darts-pt)
