@@ -143,3 +143,5 @@ evaluator/data/
 *.log
 # don't track pt file
 *.pt
+# don't track numpy file
+*.npy
