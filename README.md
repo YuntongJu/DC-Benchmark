@@ -10,3 +10,10 @@ git clone git@github.com:justincui03/dc_benchmark.git
 ```
 ## Step 2
 Download all(or part) of the data from [this shared link](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing)
+
+### Step 3
+Run the following command to create a conda environment
+```
+cd dc_benchmark
+conda env create -f environment.yml
+```
