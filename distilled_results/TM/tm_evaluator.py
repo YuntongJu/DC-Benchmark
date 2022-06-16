@@ -98,17 +98,18 @@ if __name__ == '__main__':
         result = evaluator.evaluate(args, logging)
         avg_acc.append(result[args.model])
     mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
-    logging.warning("TM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+    logging.warning("TM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, opitmizer: %s", 
         mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model
+        args.model,
+        args.optimizer
     )
 
-    print("TM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
+    print("TM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s" % 
         (mean * 100, 
         std * 100, 
         args.dataset, 
@@ -116,5 +117,6 @@ if __name__ == '__main__':
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model)
+        args.model,
+        args.optimizer)
     )

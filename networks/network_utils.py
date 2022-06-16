@@ -4,7 +4,7 @@ sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 from networks.convnet import ConvNet
 from networks.alexnet import AlexNet
 from networks.mlp import MLP
-from networks.resnet import ResNet152, ResNet18, ResNet18ImageNet, ResNet152Imagenet
+from networks.resnet import ResNet152, ResNet18, ResNet34, ResNet50, ResNet101, ResNet18ImageNet, ResNet152Imagenet
 class NetworkUtils:
 
     @staticmethod
@@ -38,6 +38,12 @@ class NetworkUtils:
             return AlexNet(channel, num_classes)
         elif model_name == 'resnet18':
             return ResNet18(channel=channel, num_classes=num_classes)
+        elif model_name == 'resnet34':
+            return ResNet34(channel=channel, num_classes=num_classes)
+        elif model_name == 'resnet50':
+            return ResNet50(channel=channel, num_classes=num_classes)
+        elif model_name == 'resnet101':
+            return ResNet101(channel=channel, num_classes=num_classes)
         elif model_name == 'resnet18imagenet':
             return ResNet18ImageNet(channel=channel, num_classes=num_classes)
         elif model_name == 'resnet152':

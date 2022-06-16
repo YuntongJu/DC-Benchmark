@@ -63,6 +63,7 @@ if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
     from distilled_results.random.random_data_loader import RandomDataLoader
+    from distilled_results.random.random_data_generator import RandomDataGenerator
 
     args = CrossArchEvaluator.prepare_args()
 
@@ -80,7 +81,11 @@ if __name__ == '__main__':
         data_path += 'normalize_'
     image_path = data_path + 'images.pt'
     label_path = data_path + 'labels.pt'
-    train_image, train_label = RandomDataLoader.load_data(image_path, label_path)
+    if args.ipc <= 50:
+        train_image, train_label = RandomDataLoader.load_data(image_path, label_path)
+    else:
+        train_image, train_label = RandomDataGenerator.load_data(args)
+
     print(train_image.shape)
     print(train_label.shape)
     print(train_image.max())
@@ -95,17 +100,18 @@ if __name__ == '__main__':
         avg_acc.append(result[args.model])
 
     mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
-    logging.warning("Random: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+    logging.warning("Random: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s", 
         mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model
+        args.model,
+        args.optimizer
     )
 
-    print("Kmeans: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
+    print("Random: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s" % 
         (mean * 100, 
         std * 100, 
         args.dataset, 
@@ -113,5 +119,6 @@ if __name__ == '__main__':
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model)
+        args.model,
+        args.optimizer)
     )

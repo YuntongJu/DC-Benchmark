@@ -9,8 +9,10 @@ class WholeDataLoader:
         transform = transforms.Compose([transforms.ToTensor()])
         if dataset_name == 'cifar10':
             ds_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
-        else:
-            ds_train = None
+        elif dataset_name == 'cifar100':
+            ds_train = datasets.CIFAR100('data', train=True, download=True, transform=transform)
+        elif dataset_name == 'tinyimagenet':
+            
         images_all = [torch.unsqueeze(ds_train[i][0], dim=0) for i in range(len(ds_train))]
         labels_all = [ds_train[i][1] for i in range(len(ds_train))]
 

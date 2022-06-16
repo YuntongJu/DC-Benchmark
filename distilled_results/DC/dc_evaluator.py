@@ -58,6 +58,7 @@ class CrossArchEvaluator(Evaluator):
             model = NetworkUtils.create_network(args)
             _, _, test_acc = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args, logging)
             per_arch_accuracy[model_name]  = test_acc
+            print("current accuracy is: ", test_acc)
         return per_arch_accuracy
         
 
@@ -78,7 +79,10 @@ if __name__ == '__main__':
 
     data_path = ''
     if args.dataset == 'CIFAR10':
+        # if args.ipc <= 50:
         data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR10/IPC' + str(args.ipc) + '/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
+        # else:
+        # data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR10/real/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'CIFAR100':
         data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR100/IPC' + str(args.ipc) + '/res_DC_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'tinyimagenet':
@@ -88,8 +92,6 @@ if __name__ == '__main__':
     train_image, train_label = DCDataLoader.load_data(data_path)
     print(train_image.shape)
     print(train_label.shape)
-    print(train_image.min())
-    print(train_image.max())
 
     dst_test = EvaluatorUtils.get_testset(args)
 
@@ -102,17 +104,17 @@ if __name__ == '__main__':
         result = evaluator.evaluate(args, logging)
         avg_acc.append(result[args.model])
     mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
-    logging.warning("DC: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+    logging.warning("DC: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s", 
         mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model
+        args.model,
+        args.optimizer
     )
-
-    print("DC: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
+    print("DC: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s" % 
         (mean * 100, 
         std * 100, 
         args.dataset, 
@@ -120,5 +122,6 @@ if __name__ == '__main__':
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model)
+        args.model,
+        args.optimizer)
     )

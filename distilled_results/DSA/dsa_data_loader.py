@@ -4,8 +4,8 @@ class DSADataLoader:
 
     @staticmethod
     def load_data(path_to_pt_file):
-        dm_data = torch.load(path_to_pt_file)
-        training_data = dm_data['data']
+        dsa_data = torch.load(path_to_pt_file)
+        training_data = dsa_data['data']
         train_images, train_labels = training_data[-1]
         return train_images, train_labels
 

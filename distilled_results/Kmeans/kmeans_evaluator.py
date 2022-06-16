@@ -74,7 +74,10 @@ if __name__ == '__main__':
         level=logging.WARNING
     )
 
-    data_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/' + args.dataset + '_IPC' + str(args.ipc) + '_'
+    if args.ipc <= 50:
+        data_path = os.getcwd() + "/" + args.dataset + '/IPC' + str(args.ipc) + '/' + args.dataset + '_IPC' + str(args.ipc) + '_'
+    else:
+        data_path = '/home/justincui/kmeans/' + args.dataset + '_IPC' + str(args.ipc)
     image_path = data_path + 'images.pt'
     label_path = data_path + 'labels.pt'
     train_image, train_label = KMeansDataLoader.load_data(image_path, label_path)
@@ -93,16 +96,17 @@ if __name__ == '__main__':
         avg_acc.append(result[args.model])
 
     mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
-    logging.warning("Kmeans: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+    logging.warning("Kmeans: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s", 
         mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model
+        args.model,
+        args.optimizer
     )
-    print("Kmeans: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
+    print("Kmeans: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s" % 
         (mean * 100, 
         std * 100, 
         args.dataset, 
@@ -110,7 +114,8 @@ if __name__ == '__main__':
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model)
+        args.model,
+        args.optimizer)
     )
 
     

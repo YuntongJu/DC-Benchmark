@@ -6,7 +6,7 @@ class NASEvaluator(Evaluator):
     def __init__():
         pass
     
-    def evaluate():
+    def evaluate(data_path, num_network, repeat_block, eval_method):
         '''
         Evaluate the model with nueral architecture search.
         '''

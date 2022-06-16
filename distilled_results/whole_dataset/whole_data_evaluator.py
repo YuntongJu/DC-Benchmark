@@ -1,14 +1,12 @@
 import sys
-sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
+sys.path.append('/nfs/data/justincui/dc_benchmark')
 
 import torch
 from evaluator.evaluator import Evaluator
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
-import tqdm
-import kornia as K
-from torch.utils.data import Dataset
+import logging
 
 
 class CrossArchEvaluator(Evaluator):
@@ -20,14 +18,14 @@ class CrossArchEvaluator(Evaluator):
     @staticmethod
     def prepare_args():
         parser = argparse.ArgumentParser(description='Parameter Processing')
-        parser.add_argument('--method', type=str, default='DC', help='DC/DSA')
         parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
-        parser.add_argument('--model', type=str, default='ConvNet', help='model')
+        parser.add_argument('--model', type=str, default='convnet', help='model')
         parser.add_argument('--ipc', type=int, default=50, help='image(s) per class')
         parser.add_argument('--eval_mode', type=str, default='S', help='eval_mode') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--normalize_data', type=bool, default=False, help='whether to normalize the data') # S: the same to training model, M: multi architectures,  W: net width, D: net depth, A: activation function, P: pooling layer, N: normalization layer,
         parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
         parser.add_argument('--num_eval', type=int, default=20, help='the number of evaluating randomly initialized models')
+        parser.add_argument('--print', type=bool, default=True, help='the number of evaluating randomly initialized models')
         parser.add_argument('--epoch_eval_train', type=int, default=50, help='epochs to train a model with synthetic data')
         parser.add_argument('--Iteration', type=int, default=1000, help='training iterations')
         parser.add_argument('--lr_img', type=float, default=0.1, help='learning rate for updating synthetic images')
@@ -46,33 +44,59 @@ class CrossArchEvaluator(Evaluator):
         args.device = 'cuda'
         return args
 
-    def evaluate(self, args):
-        args.epoch_eval_train = 100
+    @staticmethod
+    def evaluate(args, dst_train, dst_test, logging):
+        args.epoch_eval_train = 150
+        testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=True, num_workers=0)
+
         if args.dsa:
             args.dsa_param = EvaluatorUtils.ParamDiffAug()
-            args.epoch_eval_train = 100
+            args.epoch_eval_train = 150
             args.dc_aug_param = None
-        if args.zca:
-            args.epoch_eval_train = 20
         per_arch_accuracy = {}
-        for model_name in ['resnet18']:
-            model = NetworkUtils.create_network(model_name)
-            per_arch_accuracy[model_name] = EvaluatorUtils.evaluate_synset(0, model, self.input_images, self.input_labels, self.test_dataset, args)
+        for model_name in [args.model]:
+            model = NetworkUtils.create_network(args)
+            net, acc_train, acc_test = EvaluatorUtils.evaluate_synset_dataset(0, model, dst_train, testloader, args, logging)
+            per_arch_accuracy[model_name] = acc_test
         return per_arch_accuracy
+    
 
 # Evaluation for DSA
 if __name__ == '__main__':
     import sys
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    from distilled_results.whole_dataset.data_loader import WholeDataLoader
 
     args = CrossArchEvaluator.prepare_args()
     args.dsa = True
-    train_image, train_label = WholeDataLoader.load_data('cifar10')
-    print(train_image.shape)
-    print(train_label.shape)
-    dst_test = EvaluatorUtils.get_cifar10_testset(args)
+    dst_train, dst_test = EvaluatorUtils.get_dataset(args)
+    print("train set length:", len(dst_train))
     print("test set length:", len(dst_test))
     testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-    evaluator = CrossArchEvaluator(train_image, train_label, testloader, {'models':['convnet']})
-    evaluator.evaluate(args)
+    avg_acc = []
+    for i in range(args.num_eval):
+        print("current iteration: ", i)
+        result = CrossArchEvaluator.evaluate(args, dst_train, dst_test, logging)
+        avg_acc.append(result[args.model])
+    mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
+    logging.warning("Whole: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s", 
+        mean * 100, std * 100, 
+        args.dataset, 
+        args.ipc,
+        args.dsa,
+        args.num_eval,
+        args.aug,
+        args.model,
+        args.optimizer
+    )
+
+    print("Whole: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s" % 
+        (mean * 100, 
+        std * 100, 
+        args.dataset, 
+        args.ipc,
+        args.dsa,
+        args.num_eval,
+        args.aug,
+        args.model,
+        args.optimizer)
+    )

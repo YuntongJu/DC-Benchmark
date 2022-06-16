@@ -77,7 +77,10 @@ if __name__ == '__main__':
 
     data_path = ''
     if args.dataset == 'CIFAR10':
-        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DSA/CIFAR10/IPC' + str(args.ipc) + '/res_DSA_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
+        if args.ipc <= 50:
+            data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DSA/CIFAR10/IPC' + str(args.ipc) + '/res_DSA_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
+        else:
+            data_path = '/home/justincui/dsa/' + '/res_DSA_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'CIFAR100':
         data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DSA/CIFAR100/IPC' + str(args.ipc) + '/res_DSA_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'tinyimagenet':
@@ -96,17 +99,18 @@ if __name__ == '__main__':
         avg_acc.append(result[args.model])
 
     mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
-    logging.warning("DSA: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+    logging.warning("DSA: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s", 
         mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model
+        args.model,
+        args.optimizer
     )
 
-    print("DSA: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
+    print("DSA: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s" % 
         (mean * 100, 
         std * 100, 
         args.dataset, 
@@ -114,5 +118,6 @@ if __name__ == '__main__':
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model)
+        args.model,
+        args.optimizer)
     )

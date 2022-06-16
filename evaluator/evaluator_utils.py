@@ -3,7 +3,6 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 import torchvision
 from torch.utils.data import Dataset
@@ -63,21 +62,20 @@ class EvaluatorUtils:
             self.contrast = 0.5
             
     @staticmethod
-    def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args, logging):
+    def evaluate_synset_dataset(it_eval, net, dst_train, testloader, args, logging):
         net = net.to(args.device)
-        images_train = images_train.to(args.device)
-        labels_train = labels_train.to(args.device)
         lr = float(args.lr_net)
         Epoch = int(args.epoch_eval_train)
         lr_schedule = [Epoch//2+1]
         if args.optimizer == 'adam':
             logging.info("using adam optimizer")
-            optimizer = torch.optim.Adam(net.parameters())
+            print("using adam optimizer")
+            optimizer = torch.optim.Adam(net.parameters(), lr=0.003)
         else:
+            print("using sgd optimizer")
             logging.info("using sgd optimizer")
             optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
 
-        dst_train = TensorDataset(images_train, labels_train)
         trainloader = torch.utils.data.DataLoader(dst_train, batch_size=args.batch_train, shuffle=True, num_workers=0)
 
         start = time.time()
@@ -89,7 +87,6 @@ class EvaluatorUtils:
                 if args.optimizer == 'adam':
                     logging.info("using adam optimizer")
                     # optimizer = torch.optim.Adam(net.parameters(), lr=lr)
-                    pass
                 else:
                     logging.info("using sgd optimizer")
                     optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
@@ -97,14 +94,19 @@ class EvaluatorUtils:
         criterion = nn.CrossEntropyLoss().to(args.device)
         _, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0, logging = logging)
         logging.info('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
+        print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
         if hasattr(args, 'print') and args.print:
             print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
-
-
         return net, acc_train, acc_test
 
     @staticmethod
+    def evaluate_synset(it_eval, net, images_train, labels_train, testloader, args, logging):
+        dst_train = TensorDataset(images_train, labels_train)
+        return EvaluatorUtils.evaluate_synset_dataset(it_eval, net, dst_train, testloader, args, logging)
+
+    @staticmethod
     def epoch(mode, dataloader, net, optimizer, criterion, args, aug, ep, logging):
+        print(mode)
         loss_avg, acc_avg, num_exp = 0, 0, 0
         net = net.to(args.device)
         criterion = criterion.to(args.device)
@@ -118,14 +120,19 @@ class EvaluatorUtils:
             img = datum[0].float().to(args.device)
             if aug:
                 if args.dsa:
-                    if i_batch == 0:
+                    if i_batch == 0 and mode == 'train':
                         logging.info("using dsa")
+                        print("using dsa")
                     img = EvaluatorUtils.DiffAugment(img, args.dsa_strategy, param=args.dsa_param)
-                elif hasattr(args, 'aug') and args.aug != '':
+                elif hasattr(args, 'aug') and args.aug != '' and mode == 'train':
                     if i_batch == 0:
                         logging.info("using ", args.aug)
+                        print("using ", args.aug)
                     img = EvaluatorUtils.custom_aug(img, args)
                 else:
+                    if i_batch == 0:
+                        if args.dc_aug_param == None or args.dc_aug_param['strategy'] == 'none':
+                            print("not using any augmentations")
                     img = EvaluatorUtils.augment(img, args.dc_aug_param, device=args.device)
             if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
                 lab = datum[1].to(args.device)
@@ -154,6 +161,7 @@ class EvaluatorUtils:
         loss_avg /= num_exp
         acc_avg /= num_exp
         logging.info("mode: %s epoch %d accuracy is: %.2f, loss: %.2f", mode, ep, acc_avg, loss_avg)
+        print("mode: %s epoch %d accuracy is: %.2f, loss: %.2f" % (mode, ep, acc_avg, loss_avg))
         return loss_avg, acc_avg
 
     @staticmethod
@@ -210,9 +218,6 @@ class EvaluatorUtils:
 
     @staticmethod
     def augment(images, dc_aug_param, device):
-        # This can be sped up in the future.
-        if dc_aug_param == None or dc_aug_param['strategy'] == 'none':
-            print("not using any augmentation")
         if dc_aug_param != None and dc_aug_param['strategy'] != 'none':
             print("using DC augmentation")
             scale = dc_aug_param['scale']
@@ -525,7 +530,7 @@ class EvaluatorUtils:
                 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
-            dst_train = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "train", "images"), transform=transform)
+            dst_train = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "train"), transform=transform)
             dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "val", "images"), transform=transform)
 
         return dst_train, dst_test

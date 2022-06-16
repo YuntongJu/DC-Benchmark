@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+#5 Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -141,3 +141,5 @@ evaluator/data/
 *.py.swp
 # log file
 *.log
+# don't track pt file
+*.pt

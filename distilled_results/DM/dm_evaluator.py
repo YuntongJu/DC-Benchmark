@@ -75,8 +75,11 @@ if __name__ == '__main__':
         level=logging.WARNING
     )
 
-    data_path = ''
-    data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DM/' + args.dataset + '/IPC' + str(args.ipc) + '/res_DM_' + args.dataset
+    if args.ipc <= 50:
+        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DM/'+ args.dataset + '/IPC' + str(args.ipc)
+    else:
+        data_path = '/home/justincui/dm'
+    data_path = data_path  + '/res_DM_' + args.dataset
     if args.dataset == 'tinyimagenet':
         data_path += '_ConvNetD4_'
     else:
@@ -97,24 +100,26 @@ if __name__ == '__main__':
         result = evaluator.evaluate(args, logging)
         avg_acc.append(result[args.model])
     mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
-    logging.warning("DM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s", 
+    logging.warning("DM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s", 
         mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model
+        args.model,
+        args.optimizer
     )
 
-    print("DM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s" % 
+    print("DM: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimize: %s" % 
         (mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
         args.aug,
-        args.model)
+        args.model,
+        args.optimizer)
     )
 
     
