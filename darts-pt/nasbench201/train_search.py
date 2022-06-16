@@ -186,32 +186,34 @@ def main():
         np.random.RandomState(10).shuffle(indices)
         split = int(np.floor(args.train_portion * num_train))
         print("---------number of test set:", num_train - split)
+        print("current path:", os.getcwd())
         test_queue = torch.utils.data.DataLoader(
             real_train_data, batch_size=args.batch_size,
             sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[split:]),
             pin_memory=True)
+        data_path = os.getcwd() + '/../../data/condensed'
         if args.dc_method != 'whole':
             if args.dc_method == 'random':
-                training_images = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/random/CIFAR10/IPC50/CIFAR10_IPC50_normalize_images.pt')
-                training_labels = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/random/CIFAR10/IPC50/CIFAR10_IPC50_normalize_labels.pt')
+                training_images = torch.load(data_path + '/random/CIFAR10/IPC50/CIFAR10_IPC50_normalize_images.pt')
+                training_labels = torch.load(data_path + '/random/CIFAR10/IPC50/CIFAR10_IPC50_normalize_labels.pt')
             elif args.dc_method == 'tm':
-                training_images = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/TM/CIFAR10/IPC50/images_best.pt')
-                training_labels = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/TM/CIFAR10/IPC50/labels_best.pt')
+                training_images = torch.load(data_path + '/TM/CIFAR10/IPC50/images_best.pt')
+                training_labels = torch.load(data_path + '/TM/CIFAR10/IPC50/labels_best.pt')
             elif args.dc_method == 'dm':
-                dm_data = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/DM/CIFAR10/IPC50/res_DM_CIFAR10_ConvNet_50ipc.pt')
+                dm_data = torch.load(data_path + '/DM/CIFAR10/IPC50/res_DM_CIFAR10_ConvNet_50ipc.pt')
                 training_data = dm_data['data']
                 training_images, training_labels = training_data[-1]
             elif args.dc_method == 'dc':
-                dc_data = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt')
+                dc_data = torch.load(data_path + '/DC/CIFAR10/IPC50/res_DC_CIFAR10_ConvNet_50ipc.pt')
                 training_data = dc_data['data']
                 training_images, training_labels = training_data[-1]
             elif args.dc_method == 'dsa':
-                dsa_data = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/DSA/CIFAR10/IPC50/res_DSA_CIFAR10_ConvNet_50ipc.pt')
+                dsa_data = torch.load(data_path + '/DSA/CIFAR10/IPC50/res_DSA_CIFAR10_ConvNet_50ipc.pt')
                 training_data = dsa_data['data']
                 training_images, training_labels = training_data[-1]
             elif args.dc_method == 'kmeans':
-                training_images = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/Kmeans/CIFAR10/IPC50/CIFAR10_IPC50_images.pt')
-                training_labels = torch.load('/nfs/data/justincui/dc_benchmark/distilled_results/Kmeans/CIFAR10/IPC50/CIFAR10_IPC50_labels.pt')
+                training_images = torch.load(data_path + '/kmeans-emb/CIFAR10/IPC50/CIFAR10_IPC50_images.pt')
+                training_labels = torch.load(data_path + '/kmeans-emb/CIFAR10/IPC50/CIFAR10_IPC50_labels.pt')
             train_data = TensorDataset(training_images, training_labels.long())
             train_queue = torch.utils.data.DataLoader(
                 train_data, batch_size=args.batch_size)
