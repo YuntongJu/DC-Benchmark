@@ -23,3 +23,8 @@ Running an evaluation is very simple with DCBench
 ```
 bash eval.sh --dataset CIFAR10 --ipc 1 --model convnet --aug autoaug
 ```
+Here are the configurable parameters
+- dataset: choose between CIFAR10, CIFAR100 and tinyimagenet
+- ipc: choose between 1, 10 and 50
+- model: choose between convnet, convnet4, mlp, resnet18, resnet152, etc
+- aug: choose between autoaug, randaug, imagenet_aug, dsa,etc
