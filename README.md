@@ -41,14 +41,6 @@ bash darts-201.sh --dc_method tm
 For the detailed setup, please refer to [DARTS-PT
 ](https://github.com/ruocwang/darts-pt)
 
-# Example condensed datasets
-|![](pictures/random.png) | ![](pictures/kmeans_selection.png)|
-|:--:|:--:|
-|*Real images* | *Synthetic images* |
-|![](pictures/vis_DC_CIFAR10_ConvNet_10ipc_exp3_iter1000.png) | ![](pictures/vis_DSA_CIFAR10_ConvNet_10ipc_exp4_iter1000.png)|
-|*Real images* | *Synthetic images* |
-|![](pictures/vis_DM_CIFAR10_ConvNet_10ipc_exp0_iter20000.png) | ![](pictures/tm_cifar_10_ipc10.png)|
-|*Real images* | *Synthetic images* |
 
 # Acknowledgments
 
