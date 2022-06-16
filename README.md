@@ -17,3 +17,9 @@ Run the following command to create a conda environment
 cd dc_benchmark
 conda env create -f environment.yml
 ```
+
+# Run an evaluation
+Running an evaluation is very simple with DCBench
+```
+bash eval.sh --dataset CIFAR10 --ipc 1 --model convnet --aug autoaug
+```
