@@ -145,3 +145,18 @@ evaluator/data/
 *.pt
 # don't track numpy file
 *.npy
+
+# for NAS
+.vscode
+**/__pycache__
+__init__.py
+*.pyc
+*.gv
+*.pdf
+*normal
+*reduction
+**/experiments/
+**/experiments_old/
+data/
+figs/
+note.txt
