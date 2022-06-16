@@ -40,3 +40,11 @@ bash darts-201.sh --dc_method tm
 
 For the detailed setup, please refer to [DARTS-PT
 ](https://github.com/ruocwang/darts-pt)
+
+***
+
+# Acknowledgments
+Part of our code are adpoted from the following github repositories with license
+- [DatasetCondensation](https://github.com/VICO-UoE/DatasetCondensation)
+- [mtt-distillation](https://github.com/GeorgeCazenavette/mtt-distillation)
+- [DARTS-PT](https://github.com/ruocwang/darts-pt)
