@@ -75,21 +75,13 @@ if __name__ == '__main__':
         level=logging.WARNING
     )
 
-    data_path = ''
-    if args.dataset == 'CIFAR10':
-        # if args.ipc <= 50:
-        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR10/IPC' + str(args.ipc) + '/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
-        # else:
-        # data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR10/real/res_DC_CIFAR10_ConvNet_' + str(args.ipc) + 'ipc.pt'
-    elif args.dataset == 'CIFAR100':
-        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/CIFAR100/IPC' + str(args.ipc) + '/res_DC_CIFAR100_ConvNet_' + str(args.ipc) + 'ipc.pt'
+    data_path = os.getcwd() + '/data/condensed/'
+    if args.dataset == 'CIFAR10' or args.dataset == 'CIFAR100':
+        data_path = data_path + 'DC/'+ args.dataset + '/res_DC_' + args.dataset + '_ConvNet_' + str(args.ipc) + 'ipc.pt'
     elif args.dataset == 'tinyimagenet':
-        data_path = '/nfs/data/justincui/dc_benchmark/distilled_results/DC/tinyimagenet/IPC' + str(args.ipc) + '/res_DC_tinyimagenet_ConvNetD4_' + str(args.ipc) + 'ipc.pt'
-
+        data_path = data_path + 'DC/tinyimagenet/res_DC_tinyimagenet_ConvNetD4_' + str(args.ipc) + 'ipc.pt'
 
     train_image, train_label = DCDataLoader.load_data(data_path)
-    print(train_image.shape)
-    print(train_label.shape)
 
     dst_test = EvaluatorUtils.get_testset(args)
 
@@ -111,15 +103,4 @@ if __name__ == '__main__':
         args.aug,
         args.model,
         args.optimizer
-    )
-    print("DC: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s" % 
-        (mean * 100, 
-        std * 100, 
-        args.dataset, 
-        args.ipc,
-        args.dsa,
-        args.num_eval,
-        args.aug,
-        args.model,
-        args.optimizer)
     )

@@ -1,7 +1,7 @@
 #!/bin/bash
 dataset=${dataset:-cifar10}
 method=${method:-"DC"}
-aug=${method:-"random_aug"}
+aug=${aug:-"random_aug"}
 gpu=${gpu:-"auto"}
 ipc=${ipc:-1}
 model=${model:"convnet"}
