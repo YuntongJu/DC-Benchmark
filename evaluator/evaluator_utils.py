@@ -9,6 +9,8 @@ from torch.utils.data import Dataset
 from scipy.ndimage.interpolation import rotate as scipyrotate
 import os
 
+cached_dataset_path = os.getcwd() + '/data/cached/'
+
 class Cutout(object):
     def __init__(self, length, prob=1.0):
         self.length = length
@@ -482,7 +484,7 @@ class EvaluatorUtils:
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
 
-            dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+            dst_test = datasets.CIFAR10(cached_dataset_path, train=False, download=True, transform=transform)
         elif args.dataset == 'CIFAR100':
             mean = [0.5071, 0.4866, 0.4409]
             std = [0.2673, 0.2564, 0.2762]
@@ -490,7 +492,7 @@ class EvaluatorUtils:
                 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
-            dst_test = datasets.CIFAR100('data', train=False, download=True, transform=transform)
+            dst_test = datasets.CIFAR100(cached_dataset_path, train=False, download=True, transform=transform)
         elif args.dataset == 'tinyimagenet':
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]
@@ -512,8 +514,8 @@ class EvaluatorUtils:
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
 
-            dst_train = datasets.CIFAR10('data', train=True, download=True, transform=transform)
-            dst_test = datasets.CIFAR10('data', train=False, download=True, transform=transform)
+            dst_train = datasets.CIFAR10(cached_dataset_path, train=True, download=True, transform=transform)
+            dst_test = datasets.CIFAR10(cached_dataset_path, train=False, download=True, transform=transform)
         elif args.dataset == 'CIFAR100':
             mean = [0.5071, 0.4866, 0.4409]
             std = [0.2673, 0.2564, 0.2762]
@@ -521,8 +523,8 @@ class EvaluatorUtils:
                 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
-            dst_train = datasets.CIFAR100('data', train=True, download=True, transform=transform)
-            dst_test = datasets.CIFAR100('data', train=False, download=True, transform=transform)
+            dst_train = datasets.CIFAR100(cached_dataset_path, train=True, download=True, transform=transform)
+            dst_test = datasets.CIFAR100(cached_dataset_path, train=False, download=True, transform=transform)
         elif args.dataset == 'tinyimagenet':
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]

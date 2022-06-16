@@ -1,13 +1,13 @@
 import sys
-sys.path.append('../../../dc_benchmark')
-
-import torch
+import os
+sys.path.append(os.getcwd())
+from distilled_results.DC.dc_data_loader import DCDataLoader
 from evaluator.evaluator import Evaluator
 from evaluator.evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
-import os
 import logging
+import torch
 
 
 class CrossArchEvaluator(Evaluator):
@@ -66,8 +66,6 @@ class CrossArchEvaluator(Evaluator):
 if __name__ == '__main__':
     import sys
     import copy
-    sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
-    from distilled_results.DC.dc_data_loader import DCDataLoader
     args = CrossArchEvaluator.prepare_args()
 
     logging.basicConfig(
