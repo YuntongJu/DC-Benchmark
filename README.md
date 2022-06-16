@@ -28,3 +28,13 @@ Here are the configurable parameters
 - ipc: choose between 1, 10 and 50
 - model: choose between convnet, convnet4, mlp, resnet18, resnet152, etc
 - aug: choose between autoaug, randaug, imagenet_aug, dsa,etc
+
+# Neural Architecture Search
+We incorparete the standard NAS-Bench-201 library into our codebase.
+You can start a simple NAS experiment by running the following command
+```
+cd darts-pt
+bash darts-201.sh
+```
+For the detailed setup, please refer to [DARTS-PT
+](https://github.com/ruocwang/darts-pt)
