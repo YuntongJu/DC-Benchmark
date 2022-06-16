@@ -157,6 +157,7 @@ __init__.py
 *reduction
 **/experiments/
 **/experiments_old/
-data/
+**/data/
 figs/
 note.txt
+*.pth
