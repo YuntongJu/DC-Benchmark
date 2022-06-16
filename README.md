@@ -1,6 +1,6 @@
 # DCBench
 
-This is the official codebase for paper: DC-BENCH: Dataset Condensation Benchmark.
+This is the official codebase for paper DC-BENCH: Dataset Condensation Benchmark.
 
 # How to set up
 ## Step 1
