@@ -1,4 +1,4 @@
-name: distillation
+name: dcbench
 channels:
   - pytorch
   - conda-forge
