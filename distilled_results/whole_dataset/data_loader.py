@@ -12,9 +12,8 @@ class WholeDataLoader:
         elif dataset_name == 'cifar100':
             ds_train = datasets.CIFAR100('data', train=True, download=True, transform=transform)
         elif dataset_name == 'tinyimagenet':
-            
-        images_all = [torch.unsqueeze(ds_train[i][0], dim=0) for i in range(len(ds_train))]
-        labels_all = [ds_train[i][1] for i in range(len(ds_train))]
+            images_all = [torch.unsqueeze(ds_train[i][0], dim=0) for i in range(len(ds_train))]
+            labels_all = [ds_train[i][1] for i in range(len(ds_train))]
 
         images_all = torch.cat(images_all, dim=0)
         labels_all = torch.tensor(labels_all, dtype=torch.long)

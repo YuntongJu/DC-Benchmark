@@ -46,7 +46,6 @@ class CrossArchEvaluator(Evaluator):
 
     @staticmethod
     def evaluate(args, dst_train, dst_test, logging):
-        args.epoch_eval_train = 150
         testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=True, num_workers=0)
 
         if args.dsa:
@@ -56,9 +55,11 @@ class CrossArchEvaluator(Evaluator):
         per_arch_accuracy = {}
         for model_name in [args.model]:
             model = NetworkUtils.create_network(args)
+            start_params = [p.detach().cpu() for p in model.parameters()]
             net, acc_train, acc_test = EvaluatorUtils.evaluate_synset_dataset(0, model, dst_train, testloader, args, logging)
+            end_params = [p.detach().cpu() for p in net.parameters()]
             per_arch_accuracy[model_name] = acc_test
-        return per_arch_accuracy
+        return per_arch_accuracy, (start_params, end_params)
     
 
 # Evaluation for DSA
@@ -67,7 +68,7 @@ if __name__ == '__main__':
     sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
 
     args = CrossArchEvaluator.prepare_args()
-    args.dsa = True
+    args.dsa = False
     dst_train, dst_test = EvaluatorUtils.get_dataset(args)
     print("train set length:", len(dst_train))
     print("test set length:", len(dst_test))
@@ -75,28 +76,27 @@ if __name__ == '__main__':
     avg_acc = []
     for i in range(args.num_eval):
         print("current iteration: ", i)
-        result = CrossArchEvaluator.evaluate(args, dst_train, dst_test, logging)
+        result, (start_params, end_params) = CrossArchEvaluator.evaluate(args, dst_train, dst_test, logging)
+        torch.save((start_params, end_params), '/nfs/data/justincui/model_matching/traces/' + str(i) + '_traces.pt')
         avg_acc.append(result[args.model])
     mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
-    logging.warning("Whole: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s", 
+    logging.warning("Whole: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, model: %s, optimizer: %s", 
         mean * 100, std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
-        args.aug,
         args.model,
         args.optimizer
     )
 
-    print("Whole: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s" % 
+    print("Whole: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, model: %s, optimizer: %s" % 
         (mean * 100, 
         std * 100, 
         args.dataset, 
         args.ipc,
         args.dsa,
         args.num_eval,
-        args.aug,
         args.model,
         args.optimizer)
     )
