@@ -1,3 +1,5 @@
+from operator import methodcaller
+from dc_benchmark.data_loader.dc_data_loader import DCDataLoader
 import numpy as np
 import time
 import torch
@@ -543,3 +545,16 @@ class EvaluatorUtils:
         std = np.std(scores)
         mean = np.mean(scores)
         return mean, std
+
+    @staticmethod
+    def get_data_loader(method):
+        if method == 'dc':
+            return DCDataLoader()
+        elif method == 'dsa':
+            pass
+        elif method == 'dm':
+            pass
+        elif method == 'kip':
+            pass
+        elif method == 'tm':
+            pass
