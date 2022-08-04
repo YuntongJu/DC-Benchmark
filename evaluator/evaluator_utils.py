@@ -1,4 +1,3 @@
-from operator import methodcaller
 from dc_benchmark.data_loader.dc_data_loader import DCDataLoader
 import numpy as np
 import time
@@ -9,6 +8,15 @@ from torchvision import datasets, transforms
 import torchvision
 from torch.utils.data import Dataset
 from scipy.ndimage.interpolation import rotate as scipyrotate
+import sys
+sys.path.append('..')
+from data_loader.dc_data_loader import DCDataLoader
+from data_loader.dm_data_loader import DMDataLoader
+from data_loader.dsa_data_loader import DSADataLoader
+from data_loader.tm_data_loader import TMDataLoader
+from data_loader.kip_data_loader import KIPDataLoader
+from data_loader.random_data_loader import RandomDataLoader
+from data_loader.kmeans_data_loader import KMeansDataLoader
 import os
 
 cached_dataset_path = os.getcwd() + '/data/cached/'
@@ -551,10 +559,14 @@ class EvaluatorUtils:
         if method == 'dc':
             return DCDataLoader()
         elif method == 'dsa':
-            pass
+            return DSADataLoader()
         elif method == 'dm':
-            pass
+            return DMDataLoader()
         elif method == 'kip':
-            pass
+            return KIPDataLoader()
         elif method == 'tm':
-            pass
+            return TMDataLoader()
+        elif method == 'random':
+            return RandomDataLoader()
+        elif method == 'kmeans':
+            return KMeansDataLoader()
