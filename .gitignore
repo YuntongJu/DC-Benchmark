@@ -161,3 +161,6 @@ __init__.py
 figs/
 note.txt
 *.pth
+
+# for distiled results
+**/distilled_results/
