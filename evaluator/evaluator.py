@@ -54,6 +54,11 @@ def prepare_args():
         args.dsa_param = EvaluatorUtils.ParamDiffAug()
         args.epoch_eval_train = 1000
         args.dc_aug_param = None
+    if args.aug != '':
+        args.epoch_eval_train = 1000
+        args.dc_aug_param = None
+    if args.dc_aug_param != None and args.dc_aug_param['strategy'] != 'none':
+        args.epoch_eval_train = 1000
     return args
 
 if __name__ == '__main__':
