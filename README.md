@@ -1,15 +1,29 @@
 # DCBench
 
-This is the official codebase for paper DC-BENCH: Dataset Condensation Benchmark.
+This is the official codebase for paper DC-BENCH: [Dataset Condensation Benchmark](https://arxiv.org/abs/2207.09639).
+
+# Data
+We provide all condensed data [here](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing), this will be needed to reproduce the benchmark results. Please see the following sections for details.
 
 # How to set up
 ## Step 1
-Run the following command to download the library to local
+Run the following command to download the benchmark.
 ```
 git clone git@github.com:justincui03/dc_benchmark.git
 ```
 ## Step 2
-Download all(or part) of the data from [this shared link](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing)
+Download all(or part) of the data from [this shared link](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing) and put them under <em>distilled_results</em> folder in the project root directory.
+
+The project structure should look like the following:
+- dc_benchmark
+  - distilled_results
+    - DC
+    - DSA
+    - ...
+  - evaluator
+  - methods
+  - networks
+  - ...
 
 ### Step 3
 Run the following command to create a conda environment
