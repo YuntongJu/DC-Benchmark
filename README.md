@@ -1,4 +1,4 @@
-# DCBench
+<img src="pictures/logo.png">
 
 This is the official codebase for paper DC-BENCH: [Dataset Condensation Benchmark](https://arxiv.org/abs/2207.09639).  
 It covers the following:  
