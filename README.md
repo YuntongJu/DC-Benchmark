@@ -1,6 +1,12 @@
 # DCBench
 
-This is the official codebase for paper DC-BENCH: [Dataset Condensation Benchmark](https://arxiv.org/abs/2207.09639).
+This is the official codebase for paper DC-BENCH: [Dataset Condensation Benchmark](https://arxiv.org/abs/2207.09639).  
+It covers the following:  
+- Condensed Dataset
+- How to set up 
+- Ran an evaluation
+- How to integrate
+
 
 # Condensed Data
 We provide all condensed data [here](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing), this will be needed to reproduce the benchmark results. Please see the following sections for details on how to use the data.
@@ -12,17 +18,13 @@ Run the following command to download the benchmark.
 git clone git@github.com:justincui03/dc_benchmark.git
 ```
 ## Step 2
-Download all(or part) of the data from [this shared link](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing) and put them under <em>distilled_results</em> folder in the project root directory.
-
-The project structure should look like the following:
+Download all(or part) of the data from [this shared link](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing) and put them under <em>distilled_results</em> folder in the project root directory.   
+The project structure should look like the following:    
 - dc_benchmark
   - distilled_results
     - DC
     - DSA
     - ...
-  - evaluator
-  - methods
-  - networks
   - ...
 
 ### Step 3
@@ -55,6 +57,20 @@ bash darts-201.sh --dc_method tm
 
 For the detailed setup, please refer to [DARTS-PT
 ](https://github.com/ruocwang/darts-pt)
+
+# How to integrate
+**DC-Bench** is designed to be extensible. In the following sections, we will introduce how to integrate new methods and introduce new datasets which can be as simple as a few lines of code. 
+## Integrate a new method
+A new method can be introduced in the following 3 steps:
+- Define a new dataloader(if not already exist)
+- Config the code to use the new dataloader
+- Run the eval command same as all other methods
+
+
+## Introduce a new dataset
+Introducing a new dataset is even easier, it can be done in the following 2 steps:  
+- Extend the code to read from the new dataset(if the dataset is not already included in pytorch)
+- Run the eval command by specifying the new dataset
 
 # Example condensed datasets
 |<img src="pictures/random.png" width="342" height="342">| <img src="pictures/kmeans_selection.png" width="342" height="342">|
