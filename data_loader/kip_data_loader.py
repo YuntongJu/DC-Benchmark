@@ -1,16 +1,18 @@
+import os
 import torch
 import numpy as np
 
 class KIPDataLoader:
 
     @staticmethod
-    def load_images(path_to_pt_file):
-        return torch.from_numpy(np.load(path_to_pt_file)).permute(0, 3, 1, 2)
-
-    @staticmethod
-    def load_labels(path_to_pt_file):
-        # return torch.argmax(torch.from_numpy(np.load(path_to_pt_file)), dim=1)
-        return torch.from_numpy(np.load(path_to_pt_file))
+    def load_data(root_dir, dataset, ipc, data_file):
+        image_path = data_file[0]
+        label_path = data_file[1]
+        image_path = os.path.join(root_dir, "KIP", dataset, 'IPC' + str(ipc), image_path)
+        label_path = os.path.join(root_dir, "KIP", dataset, 'IPC' + str(ipc), label_path)
+        image = torch.from_numpy(np.load(image_path)).permute(0, 3, 1, 2)
+        label = torch.from_numpy(np.load(label_path))
+        return (image, label)
 
 
 if __name__ == '__main__':
