@@ -6,6 +6,7 @@ It covers the following:
 - How to set up 
 - Ran an evaluation
 - How to integrate
+- Commands to reproduce all the SOTA methods
 
 
 # Condensed Data
@@ -71,6 +72,15 @@ A new method can be introduced in the following 3 steps:
 Introducing a new dataset is even easier, it can be done in the following 2 steps:  
 - Extend the code to read from the new dataset(if the dataset is not already included in pytorch)
 - Run the eval command by specifying the new dataset
+
+## SOTA commands
+We collected all the commands to reproduce the SOTA synthetic results in our codebase. All the parameters are provided by the original authors.   
+- Commands for [DC](methods/dc/readme.md)
+- Commands for [DSA](methods/dc/readme.md)
+- Commands for [DM](methods/dc/readme.md)
+- Commands for [TM](methods/tm/readme.md)
+
+
 
 # Example condensed datasets
 |<img src="pictures/random.png" width="342" height="342">| <img src="pictures/kmeans_selection.png" width="342" height="342">|
