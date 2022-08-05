@@ -33,9 +33,10 @@ conda env create -f environment.yml
 ```
 
 # Run an evaluation
-Running an evaluation is very simple with DCBench
+Running an evaluation is very simple with DCBench.  
+Simply run the following command from the project root director you just downloaded.
 ```
-bash eval.sh --dataset CIFAR10 --ipc 1 --model convnet --aug autoaug
+bash scripts/eval.sh --dataset CIFAR10 --ipc 1 --model convnet --aug autoaug
 ```
 Here are the configurable parameters
 - dataset: choose between CIFAR10, CIFAR100 and tinyimagenet
