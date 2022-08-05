@@ -2,8 +2,8 @@
 
 This is the official codebase for paper DC-BENCH: [Dataset Condensation Benchmark](https://arxiv.org/abs/2207.09639).
 
-# Data
-We provide all condensed data [here](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing), this will be needed to reproduce the benchmark results. Please see the following sections for details.
+# Condensed Data
+We provide all condensed data [here](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing), this will be needed to reproduce the benchmark results. Please see the following sections for details on how to use the data.
 
 # How to set up
 ## Step 1
