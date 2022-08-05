@@ -570,3 +570,18 @@ class EvaluatorUtils:
             return RandomDataLoader()
         elif method == 'kmeans':
             return KMeansDataLoader()
+
+    @staticmethod
+    def get_data_file_name(method, dataset, ipc):
+        if method == 'dc' or method == 'dsa' or method == 'dm':
+            return 'res_%s_%s_ConvNet_%dipc.pt'%(method.upper(), dataset, ipc)
+        elif method == 'tm':
+            return ('images_best.pt', 'labels_best.pt')
+        elif method == 'kmeans':
+            return ('%s_IPC%d_images.pt'%(dataset, ipc), '%s_IPC%d_labels.pt'%(dataset, ipc))
+        elif method == 'random':
+            return ('%s_IPC%d_normalize_images.pt'%(dataset, ipc), '%s_IPC%d_normalize_labels.pt'%(dataset, ipc))
+        elif method == 'kip':
+            return ('images.npy', 'labels.npy')
+        else:
+            return '' 

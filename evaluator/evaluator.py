@@ -1,12 +1,12 @@
+import os
 import sys
-sys.path.append('/home/justincui/dc_benchmark/dc_benchmark')
+sys.path.append('..')
+from constants import ROOT_DIR
 
-import torch
 from evaluator import Evaluator
 from evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
-
 
 class Evaluator:
 
@@ -54,17 +54,17 @@ def prepare_args():
     parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
     parser.add_argument('--init', type=str, default='noise', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
     parser.add_argument('--dsa_strategy', type=str, default='None', help='differentiable Siamese augmentation strategy')
-    parser.add_argument('--data_path', type=str, default='data', help='dataset path')
-    parser.add_argument('--save_path', type=str, default='result', help='path to save results')
+    parser.add_argument('--data_file', type=str, default='data', help='dataset path')
     parser.add_argument('--dis_metric', type=str, default='ours', help='distance metric')
     args = parser.parse_args()
     args.dsa = False
     args.device = 'cuda'
     return args
-# evaluation for DM
+
 if __name__ == '__main__':
     args = prepare_args()
     evaluator = Evaluator()
-    evaluator.load_data(args.method, args.data_path)
+    data_path = os.path.join(ROOT_DIR, args.method, args.dataset, 'IPC' + str(args.ipc), args.data_file)
+    evaluator.load_data(args.method, data_path)
     evaluator.evaluate()
 
