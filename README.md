@@ -99,3 +99,13 @@ Part of our code are adpoted from the following github repositories with license
 - [DatasetCondensation](https://github.com/VICO-UoE/DatasetCondensation)
 - [mtt-distillation](https://github.com/GeorgeCazenavette/mtt-distillation)
 - [DARTS-PT](https://github.com/ruocwang/darts-pt)
+
+# Citation
+```
+@article{cui2022dc,
+  title={DC-BENCH: Dataset Condensation Benchmark},
+  author={Cui, Justin and Wang, Ruochen and Si, Si and Hsieh, Cho-Jui},
+  journal={arXiv preprint arXiv:2207.09639},
+  year={2022}
+}
+```
