@@ -10,7 +10,7 @@ class NetworkUtils:
     @staticmethod
     def create_network(args):
         channel = 3
-        model_name = args.model
+        model_name = args.model.lower()
         if args.dataset == 'CIFAR10':
             im_size = (32, 32)
             num_classes = 10

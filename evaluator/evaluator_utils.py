@@ -117,7 +117,6 @@ class EvaluatorUtils:
 
     @staticmethod
     def epoch(mode, dataloader, net, optimizer, criterion, args, aug, ep, logging):
-        print(mode)
         loss_avg, acc_avg, num_exp = 0, 0, 0
         net = net.to(args.device)
         criterion = criterion.to(args.device)
@@ -510,8 +509,8 @@ class EvaluatorUtils:
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
             dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "val", "images"), transform=transform)
-
-        return dst_test
+        testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
+        return testloader
 
     @staticmethod
     def get_dataset(args):
