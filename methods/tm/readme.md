@@ -3,6 +3,8 @@ Here we list all the commands to reproduce the SOTA results for Trajection Match
 
 **Note** All the sota parameters are providded by the author.
 
+For instructions on how to setup the code, see [instructions](instructions.md)
+
 # Generate training trajectories
 TM requires us to pre-generate training trajectories to use during synthetic image generation phase. Therefore we have to run the following command before starting to generate synthetic images. 
 
