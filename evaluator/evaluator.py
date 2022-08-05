@@ -8,6 +8,7 @@ from evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
 import logging
+import torch
 
 class Evaluator:
 
@@ -48,7 +49,9 @@ def prepare_args():
     parser.add_argument('--init', type=str, default='noise', help='noise/real: initialize synthetic images from random noise or randomly sampled real images.')
     parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate', help='differentiable Siamese augmentation strategy')
     args = parser.parse_args()
-    args.device = 'cuda'
+    args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(EvaluatorUtils.pick_gpu_lowest_memory()) if args.gpu == 'auto' else args.gpu
+    args.dc_aug_param = EvaluatorUtils.get_daparam(args.dataset, args.model, '', args.ipc) # This augmentation parameter set is only for DC method. It will be muted when args.dsa is True.
     # setup DSA parameters.
     if args.dsa:
         args.dsa_param = EvaluatorUtils.ParamDiffAug()
