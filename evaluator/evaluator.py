@@ -26,7 +26,8 @@ class Evaluator:
         '''
         model = NetworkUtils.create_network(args)
         _, _, test_accuracy = EvaluatorUtils.evaluate_synset(0, model, self.train_images, self.train_labels, self.dst_test, args, logging)
-        print("model_name: %s, accuracy: %.4f"%(args.model, test_accuracy))
+        # print("model_name: %s, accuracy: %.4f"%(args.model, test_accuracy))
+        return test_accuracy
 
 def prepare_args():
     parser = argparse.ArgumentParser(description='Parameter Processing')
@@ -60,5 +61,21 @@ if __name__ == '__main__':
     evaluator = Evaluator()
     data_file = EvaluatorUtils.get_data_file_name(args.method, args.dataset, args.ipc)
     evaluator.load_data(DATA_DIR, data_file, args)
-    evaluator.evaluate(args)
+    avg_acc = []
+    for i in range(args.num_eval):
+        print("current iteration: ", i)
+        result = evaluator.evaluate(args)
+        avg_acc.append(result)
+    mean, std = EvaluatorUtils.compute_std_mean(avg_acc)
+    print("%s: final acc is: %.2f +- %.2f, dataset: %s, IPC: %d, DSA:%r, num_eval: %d, aug:%s , model: %s, optimizer: %s"%( 
+        args.method.upper(),
+        mean * 100, std * 100,
+        args.dataset, 
+        args.ipc,
+        args.dsa,
+        args.num_eval,
+        args.aug,
+        args.model,
+        args.optimizer
+    ))
 
