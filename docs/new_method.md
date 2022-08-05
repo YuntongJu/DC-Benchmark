@@ -22,3 +22,34 @@ class DCDataLoader:
         return train_images, train_labels
 ```
 The return results are two PyTorch tensors containing the training images and training labels.
+
+## Step 3: Integrate
+
+### Add dataloader
+
+In the  evaluator_utils.py file under <em>**evaluator**</em> directory, find the method <em>get_data_loader</em>. Add your dataloader at the end of the <em>get_data_loader</em> so that it will look like the following
+```
+@staticmethod
+def get_data_loader(method):
+  if method == 'dc':
+    return DCDataLoader()
+  elif ...
+  elif method == 'awesome_method':
+    return AwesomeDataLoader()
+```
+
+### Config file name
+Still in evaluator_utils.py file, find the method <em>get_data_file_name</em>, modify the function to return the data file name you added, e.g. new_sota.pt
+```
+@staticmethod
+def get_data_file_name(method, dataset, ipc):
+  if method == 'dc':
+    return ...
+  elif method == 'awesome_method':
+    return 'new_sota.pt'
+```
+## Step 4: Read to go 🚀
+Now you are able to evaluate your new method with the following command
+```
+bash scripts/eval.sh --dataset CIFAR10 --ipc 1 --model convnet --aug autoaug --method awesome_method
+```
