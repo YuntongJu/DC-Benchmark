@@ -1,9 +1,8 @@
 import os
 import sys
 sys.path.append('..')
-from constants import ROOT_DIR
+from constants import DATA_DIR
 
-from evaluator import Evaluator
 from evaluator_utils import EvaluatorUtils
 from networks.network_utils import NetworkUtils
 import argparse
@@ -13,10 +12,10 @@ class Evaluator:
     def __init__(self):
         pass
 
-    def load_data(self, dc_method, dataset, data_path):
-        data_loader = EvaluatorUtils.get_data_loader(dc_method)
-        train_image, train_label = data_loader.load_data(data_path)
-        dst_test = EvaluatorUtils.get_testset(dataset)
+    def load_data(self, data_dir, data_file, args):
+        data_loader = EvaluatorUtils.get_data_loader(args.method)
+        train_image, train_label = data_loader.load_data(data_dir, args.dataset, args.ipc, data_file)
+        dst_test = EvaluatorUtils.get_testset(args.dataset, True)
         return train_image, train_label, dst_test
 
     
@@ -64,7 +63,7 @@ def prepare_args():
 if __name__ == '__main__':
     args = prepare_args()
     evaluator = Evaluator()
-    data_path = os.path.join(ROOT_DIR, args.method, args.dataset, 'IPC' + str(args.ipc), args.data_file)
-    evaluator.load_data(args.method, data_path)
+    data_file = EvaluatorUtils.get_data_file_name(args.method, args.dataset, args.ipc)
+    evaluator.load_data(DATA_DIR, data_file, args)
     evaluator.evaluate()
 

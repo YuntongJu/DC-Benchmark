@@ -1,4 +1,3 @@
-from dc_benchmark.data_loader.dc_data_loader import DCDataLoader
 import numpy as np
 import time
 import torch
@@ -485,28 +484,28 @@ class EvaluatorUtils:
         return x
 
     @staticmethod
-    def get_testset(args):
-        if args.dataset == 'CIFAR10':
+    def get_testset(dataset, normalize_data):
+        if dataset == 'CIFAR10':
             mean = [0.4914, 0.4822, 0.4465]
             std = [0.2023, 0.1994, 0.2010]
-            if args.normalize_data:
+            if normalize_data:
                 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
 
             dst_test = datasets.CIFAR10(cached_dataset_path, train=False, download=True, transform=transform)
-        elif args.dataset == 'CIFAR100':
+        elif dataset == 'CIFAR100':
             mean = [0.5071, 0.4866, 0.4409]
             std = [0.2673, 0.2564, 0.2762]
-            if args.normalize_data:
+            if normalize_data:
                 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
             dst_test = datasets.CIFAR100(cached_dataset_path, train=False, download=True, transform=transform)
-        elif args.dataset == 'tinyimagenet':
+        elif dataset == 'tinyimagenet':
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]
-            if args.normalize_data:
+            if normalize_data:
                 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
             else:
                 transform = transforms.Compose([transforms.ToTensor()])
@@ -556,6 +555,7 @@ class EvaluatorUtils:
 
     @staticmethod
     def get_data_loader(method):
+        method = method.lower()
         if method == 'dc':
             return DCDataLoader()
         elif method == 'dsa':
@@ -573,6 +573,7 @@ class EvaluatorUtils:
 
     @staticmethod
     def get_data_file_name(method, dataset, ipc):
+        method = method.lower()
         if method == 'dc' or method == 'dsa' or method == 'dm':
             return 'res_%s_%s_ConvNet_%dipc.pt'%(method.upper(), dataset, ipc)
         elif method == 'tm':
