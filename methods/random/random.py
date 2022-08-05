@@ -1,1 +1,0 @@
-random method for image selection.

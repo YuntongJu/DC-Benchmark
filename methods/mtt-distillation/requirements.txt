@@ -1,6 +1,0 @@
-pytorch
-torchvision
-kornia
-scipy
-tqdm
-wandb
