@@ -144,18 +144,12 @@ class EvaluatorUtils:
                         if args.dc_aug_param == None or args.dc_aug_param['strategy'] == 'none':
                             print("not using any augmentations")
                     img = EvaluatorUtils.augment(img, args.dc_aug_param, device=args.device)
-            if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
-                lab = datum[1].to(args.device)
-            else:
-                lab = datum[1].long().to(args.device)
+            lab = datum[1].to(args.device)
             n_b = lab.shape[0]
             output = net(img)
 
-            if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
-                loss = criterion(output, torch.argmax(lab, dim=-1))
-            else:
-                loss = criterion(output, lab)
-            if hasattr(args, 'soft_label') and args.soft_label and mode == 'train':
+            loss = criterion(output, lab)
+            if lab.dtype == torch.float:
                 acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), np.argmax(lab.cpu().data.numpy(), axis=1)))
             else:
                 acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), lab.cpu().data.numpy()))

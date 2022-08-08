@@ -17,8 +17,8 @@ class KIPDataLoader:
 
 if __name__ == '__main__':
     
-    images = KIPDataLoader.load_images('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/images.npy')
-    labels = KIPDataLoader.load_labels('/home/justincui/dc_benchmark/dc_benchmark/distilled_results/KIP/CIFAR10/IPC10/labels.npy')
+    images, labels = KIPDataLoader.load_data('/nfs/data/justincui/dc_benchmark/distilled_results/', 'CIFAR10', 10, ('images.npy', 'labels.npy'))
     print(images.shape)
     print(labels.shape)
-    print(labels)
+    print(labels.max(), labels.min())
+    print(images.max(), images.min())
