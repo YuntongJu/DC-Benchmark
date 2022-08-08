@@ -1,5 +1,5 @@
 # Methods
-We try to include all the SOTA methods together with the commands to reproduce in our benchmark.
+We try to include all the SOTA methods together with the commands to **reproduce** in our benchmark.
 
 Here are the included methods
 
@@ -12,4 +12,5 @@ Here are the included methods
 | MTT | [MTT instructions](methods/tm/instructions.md) | [MTT command](methods/tm/readme.md) |
 
 **08/08/2022 v2**
+
 more methods are coming soon.
