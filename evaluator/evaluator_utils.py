@@ -477,37 +477,12 @@ class EvaluatorUtils:
         return x
 
     @staticmethod
-    def get_testset(dataset, normalize_data):
-        if dataset == 'CIFAR10':
-            mean = [0.4914, 0.4822, 0.4465]
-            std = [0.2023, 0.1994, 0.2010]
-            if normalize_data:
-                transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
-            else:
-                transform = transforms.Compose([transforms.ToTensor()])
-
-            dst_test = datasets.CIFAR10(cached_dataset_path, train=False, download=True, transform=transform)
-        elif dataset == 'CIFAR100':
-            mean = [0.5071, 0.4866, 0.4409]
-            std = [0.2673, 0.2564, 0.2762]
-            if normalize_data:
-                transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
-            else:
-                transform = transforms.Compose([transforms.ToTensor()])
-            dst_test = datasets.CIFAR100(cached_dataset_path, train=False, download=True, transform=transform)
-        elif dataset == 'tinyimagenet':
-            mean = [0.485, 0.456, 0.406]
-            std = [0.229, 0.224, 0.225]
-            if normalize_data:
-                transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
-            else:
-                transform = transforms.Compose([transforms.ToTensor()])
-            dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "val", "images"), transform=transform)
-        testloader = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
-        return testloader
-
-    @staticmethod
     def get_dataset(args):
+
+        # KIP needs its own dataset processing.
+        if args.method.lower() == 'kip':
+            return KIPDataLoader.load_dataset(args.dataset)
+
         if args.dataset == 'CIFAR10':
             mean = [0.4914, 0.4822, 0.4465]
             std = [0.2023, 0.1994, 0.2010]
@@ -576,6 +551,6 @@ class EvaluatorUtils:
         elif method == 'random':
             return ('%s_IPC%d_normalize_images.pt'%(dataset, ipc), '%s_IPC%d_normalize_labels.pt'%(dataset, ipc))
         elif method == 'kip':
-            return ('images.npy', 'labels.npy')
+            return 'kip_cifar10_ConvNet_ssize100_zca_nol_noaug_ckpt1000.npz'
         else:
             return '' 

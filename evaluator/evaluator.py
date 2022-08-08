@@ -18,7 +18,7 @@ class Evaluator:
     def load_data(self, data_dir, data_file, args):
         data_loader = EvaluatorUtils.get_data_loader(args.method)
         self.train_images, self.train_labels = data_loader.load_data(data_dir, args.dataset, args.ipc, data_file)
-        self.dst_test = EvaluatorUtils.get_testset(args.dataset, True)
+        _, self.dst_test = EvaluatorUtils.get_dataset(args)
 
     
     def evaluate(self, args):
