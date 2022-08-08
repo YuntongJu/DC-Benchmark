@@ -6,10 +6,10 @@ Here are the included methods
 **06/16/2022 v1**
 | Method | Setup Instructions | Reproduce command |
 | ------- |-------------------- | ------------------ |
-| DC | [DC instructions](methods/dc/instructions.md) | [DC command](methods/dc/readme.md) |
-| DSA| [DSA instructions](methods/dc/instructions.md) | [DSA command](methods/dc/readme.md) |
-| DM | [DM instructions](methods/dc/instructions.md) | [DM command](methods/dc/readme.md) |
-| MTT | [MTT instructions](methods/tm/instructions.md) | [MTT command](methods/tm/readme.md) |
+| DC | [DC instructions](dc/instructions.md) | [DC command](dc/readme.md) |
+| DSA| [DSA instructions](dc/instructions.md) | [DSA command](dc/readme.md) |
+| DM | [DM instructions](dc/instructions.md) | [DM command](dc/readme.md) |
+| MTT | [MTT instructions](tm/instructions.md) | [MTT command](tm/readme.md) |
 
 **08/08/2022 v2**
 
