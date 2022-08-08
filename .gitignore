@@ -145,6 +145,7 @@ evaluator/data/
 *.pt
 # don't track numpy file
 *.npy
+*.npz
 
 # for NAS
 .vscode
