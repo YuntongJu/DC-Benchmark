@@ -9,11 +9,11 @@ It covers the following:
 - Commands to reproduce all the SOTA methods
 
 
-# Condensed Data
+# Condensed Data 💾
 We provide all condensed data [here](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing), this will be needed to reproduce the benchmark results. Please see the following sections for details on how to use the data.
 
-# How to set up
-## Step 1
+# How to set up ⚙️
+## Step 1 
 Run the following command to download the benchmark.
 ```
 git clone git@github.com:justincui03/dc_benchmark.git
@@ -35,7 +35,7 @@ cd dc_benchmark
 conda env create -f environment.yml
 ```
 
-# Run an evaluation
+# Run an evaluation 🚀
 Running an evaluation is very simple with DCBench.  
 Simply run the following command from the project root director you just downloaded.
 ```
@@ -47,7 +47,7 @@ Here are the configurable parameters
 - model: choose between convnet, convnet4, mlp, resnet18, resnet152, etc
 - aug: choose between autoaug, randaug, imagenet_aug, dsa,etc
 
-# Neural Architecture Search
+# Neural Architecture Search 🔍
 We incorparete the standard NAS-Bench-201 library into our codebase.
 You can start a simple NAS experiment by running the following command
 ```
@@ -59,7 +59,7 @@ bash darts-201.sh --dc_method tm
 For the detailed setup, please refer to [DARTS-PT
 ](https://github.com/ruocwang/darts-pt)
 
-# How to integrate
+# How to integrate 🤔
 **DC-Bench** is designed to be extensible. In the following sections, we will introduce how to integrate new methods and introduce new datasets which can be as simple as a few lines of code. 
 ## Integrate a new method
 A new method can be introduced in the following 3 steps:
@@ -75,7 +75,7 @@ Introducing a new dataset is even easier, it can be done in the following 2 step
 - Extend the code to read from the new dataset(if the dataset is not already included in pytorch)
 - Run the eval command by specifying the new dataset
 
-## SOTA commands
+## SOTA commands ❤️
 We collected all the commands to reproduce the SOTA synthetic results in our codebase. All the parameters are provided by the original authors.   
 - Commands for [DC](methods/dc/readme.md)
 - Commands for [DSA](methods/dc/readme.md)
@@ -99,3 +99,13 @@ Part of our code are adpoted from the following github repositories with license
 - [DatasetCondensation](https://github.com/VICO-UoE/DatasetCondensation)
 - [mtt-distillation](https://github.com/GeorgeCazenavette/mtt-distillation)
 - [DARTS-PT](https://github.com/ruocwang/darts-pt)
+
+# Citation
+```
+@article{cui2022dc,
+  title={DC-BENCH: Dataset Condensation Benchmark},
+  author={Cui, Justin and Wang, Ruochen and Si, Si and Hsieh, Cho-Jui},
+  journal={arXiv preprint arXiv:2207.09639},
+  year={2022}
+}
+```
