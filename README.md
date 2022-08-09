@@ -67,7 +67,7 @@ A new method can be introduced in the following 3 steps:
 - Config the code to use the new dataloader
 - Run the eval command same as all other methods
 
-A detailed tutorial can be found [**new method integration**](docs/new_method.md)🚀
+A detailed tutorial can be found [**new method integration**](docs/new_method.md)
 
 
 ## Introduce a new dataset
