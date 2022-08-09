@@ -11,9 +11,12 @@ class KIPDataLoader:
     def load_data(root_dir, dataset, ipc, data_file):
         data_path = os.path.join(root_dir, "KIP", dataset, 'IPC' + str(ipc), data_file)
         data = np.load(data_path)
-        image = torch.from_numpy(data['images']).permute(0, 3, 1, 2)
-        label = (torch.from_numpy(data['labels']) + 0.1)
-        return (image, label)
+        images = torch.from_numpy(data['images']).permute(0, 3, 1, 2)
+        labels = torch.from_numpy(data['labels'])
+        # convert label to numbers using argmax
+        labels = torch.argmax(labels, dim=1)
+        print(labels)
+        return (images, labels)
 
     @staticmethod
     def load_dataset(dataset):

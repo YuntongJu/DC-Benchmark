@@ -480,8 +480,8 @@ class EvaluatorUtils:
     def get_dataset(args):
 
         # KIP needs its own dataset processing.
-        if args.method.lower() == 'kip':
-            return KIPDataLoader.load_dataset(args.dataset)
+        # if args.method.lower() == 'kip':
+        #     return KIPDataLoader.load_dataset(args.dataset)
 
         if args.dataset == 'CIFAR10':
             mean = [0.4914, 0.4822, 0.4465]
@@ -511,7 +511,7 @@ class EvaluatorUtils:
                 transform = transforms.Compose([transforms.ToTensor()])
             dst_train = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "train"), transform=transform)
             dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imagenet-200', "val", "images"), transform=transform)
-
+        dst_test = torch.utils.data.DataLoader(dst_test, batch_size=256, shuffle=False, num_workers=0)
         return dst_train, dst_test
 
     @staticmethod
@@ -551,6 +551,8 @@ class EvaluatorUtils:
         elif method == 'random':
             return ('%s_IPC%d_normalize_images.pt'%(dataset, ipc), '%s_IPC%d_normalize_labels.pt'%(dataset, ipc))
         elif method == 'kip':
-            return 'kip_cifar10_ConvNet_ssize100_zca_nol_noaug_ckpt1000.npz'
+            # return 'kip_cifar10_ConvNet_ssize100_zca_nol_noaug_ckpt1000.npz'
+            # return 'kip_cifar10_ConvNet3_ssize100_zca_l_noaug_ckpt1000.npz'
+            return 'kip_cifar10_ConvNet3_ssize100_zca_nol_noaug_ckpt1000.npz'
         else:
             return '' 
