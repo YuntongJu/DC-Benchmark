@@ -12,3 +12,8 @@ class RandomDataLoader:
         training_images = torch.load(image_path)
         training_lables = torch.load(image_path)
         return training_images, training_lables
+
+
+    @staticmethod
+    def get_data_file_name(method, dataset, ipc):
+        return ('%s_IPC%d_normalize_images.pt'%(dataset, ipc), '%s_IPC%d_normalize_labels.pt'%(dataset, ipc))

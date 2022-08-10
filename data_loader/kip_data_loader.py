@@ -19,6 +19,17 @@ class KIPDataLoader:
         return (images, labels)
 
     @staticmethod
+    def get_data_file_name(method, dataset, ipc):
+        dataset = dataset.lower()
+        if dataset == 'cifar10':
+            num_classes = 10
+        elif dataset == 'cifar100':
+            num_classes = 100
+        elif dataset == 'tinyimagenet':
+            num_classes = 200
+        return ('%s_%s_ConvNet3_ssize%d_zca_nol_noaug_ckpt1000.npz' % (method.lower(), dataset.lower(), num_classes * ipc))
+
+    @staticmethod
     def load_dataset(dataset):
         if dataset == 'CIFAR10':
             dst_train = datasets.CIFAR10("../data", train=True, download=True, transform=None)

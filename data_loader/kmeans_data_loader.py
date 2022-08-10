@@ -12,3 +12,7 @@ class KMeansDataLoader:
         training_images = torch.load(image_path)
         training_lables = torch.load(label_path)
         return training_images, training_lables
+
+    @staticmethod
+    def get_data_file_name(method, dataset, ipc):
+        return ('%s_IPC%d_images.pt'%(dataset, ipc), '%s_IPC%d_labels.pt'%(dataset, ipc))

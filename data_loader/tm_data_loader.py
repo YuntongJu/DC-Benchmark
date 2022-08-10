@@ -20,3 +20,7 @@ class TMDataLoader:
             return torch.cat(images), torch.cat(labels)
         else:
             return torch.load(image_path), torch.load(label_path)
+
+    @staticmethod
+    def get_data_file_name(method, dataset, ipc):
+        return ('images_best.pt', 'labels_best.pt')

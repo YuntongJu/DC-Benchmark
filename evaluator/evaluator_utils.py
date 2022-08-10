@@ -542,17 +542,19 @@ class EvaluatorUtils:
     @staticmethod
     def get_data_file_name(method, dataset, ipc):
         method = method.lower()
-        if method == 'dc' or method == 'dsa' or method == 'dm':
-            return 'res_%s_%s_ConvNet_%dipc.pt'%(method.upper(), dataset, ipc)
+        if method == 'dc':
+            return DCDataLoader.get_data_file_name(method, dataset, ipc)
+        elif method == 'dsa':
+            return DSADataLoader.get_data_file_name(method, dataset, ipc)
+        elif method == 'dm':
+            return DMDataLoader.get_data_file_name(method, dataset, ipc)
         elif method == 'tm':
-            return ('images_best.pt', 'labels_best.pt')
+            return TMDataLoader.get_data_file_name(method, dataset, ipc)
         elif method == 'kmeans':
-            return ('%s_IPC%d_images.pt'%(dataset, ipc), '%s_IPC%d_labels.pt'%(dataset, ipc))
+            return KMeansDataLoader.get_data_file_name(method, dataset, ipc)
         elif method == 'random':
-            return ('%s_IPC%d_normalize_images.pt'%(dataset, ipc), '%s_IPC%d_normalize_labels.pt'%(dataset, ipc))
+            return RandomDataLoader.get_data_file_name(method, dataset, ipc)
         elif method == 'kip':
-            # return 'kip_cifar10_ConvNet_ssize100_zca_nol_noaug_ckpt1000.npz'
-            # return 'kip_cifar10_ConvNet3_ssize100_zca_l_noaug_ckpt1000.npz'
-            return 'kip_cifar10_ConvNet3_ssize100_zca_nol_noaug_ckpt1000.npz'
+            return KIPDataLoader.get_data_file_name(method, dataset, ipc)
         else:
             return '' 

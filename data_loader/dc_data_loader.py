@@ -10,3 +10,7 @@ class DCDataLoader:
         training_data = dc_data['data']
         train_images, train_labels = training_data[-1]
         return train_images, train_labels
+
+    @staticmethod
+    def get_data_file_name(method, dataset, ipc):
+        return 'res_%s_%s_ConvNet_%dipc.pt'%(method.upper(), dataset, ipc)
