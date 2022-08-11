@@ -15,7 +15,6 @@ class KIPDataLoader:
         labels = torch.from_numpy(data['labels'])
         # convert label to numbers using argmax
         labels = torch.argmax(labels, dim=1)
-        print(labels)
         return (images, labels)
 
     @staticmethod
@@ -27,7 +26,15 @@ class KIPDataLoader:
             num_classes = 100
         elif dataset == 'tinyimagenet':
             num_classes = 200
-        return ('%s_%s_ConvNet3_ssize%d_zca_nol_noaug_ckpt1000.npz' % (method.lower(), dataset.lower(), num_classes * ipc))
+        # KIP doesn't have data for tinyimagenet
+        # Will add it here once they release the data.
+        if dataset == 'cifar10':
+            return ('%s_%s_ConvNet3_ssize%d_zca_nol_noaug_ckpt1000.npz' % (method.lower(), dataset.lower(), num_classes * ipc))
+        elif dataset == 'cifar100':
+            # KIP doesn't have data for ConvNet3 for cifar100
+            # Will add it here once they release the data.
+            return ('%s_%s_ConvNet_ssize%d_zca_nol_noaug_ckpt1000.npz' % (method.lower(), dataset.lower(), num_classes * ipc))
+
 
     @staticmethod
     def load_dataset(dataset):

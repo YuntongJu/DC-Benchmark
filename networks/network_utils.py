@@ -5,6 +5,8 @@ from networks.convnet import ConvNet
 from networks.alexnet import AlexNet
 from networks.mlp import MLP
 from networks.resnet import ResNet152, ResNet18, ResNet34, ResNet50, ResNet101, ResNet18ImageNet, ResNet152Imagenet
+from networks.vit import ViT
+
 class NetworkUtils:
 
     @staticmethod
@@ -50,4 +52,17 @@ class NetworkUtils:
             return ResNet152(channel=channel, num_classes=num_classes)
         elif model_name == 'resnet152imagenet':
             return ResNet152Imagenet(channel=channel, num_classes=num_classes)
-        return None
+        elif model_name == 'vit':
+            # this is for CIFAR10 and CIFAR100
+            return ViT(
+                image_size = im_size,
+                patch_size = 4,
+                num_classes = num_classes,
+                dim = 512,
+                depth = 6,
+                heads = 8,
+                mlp_dim = 512,
+                dropout = 0.1,
+                emb_dropout = 0.1)
+        else:
+            return None

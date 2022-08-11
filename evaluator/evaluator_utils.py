@@ -480,8 +480,8 @@ class EvaluatorUtils:
     def get_dataset(args):
 
         # KIP needs its own dataset processing.
-        # if args.method.lower() == 'kip':
-        #     return KIPDataLoader.load_dataset(args.dataset)
+        if args.method.lower() == 'kip':
+            return KIPDataLoader.load_dataset(args.dataset)
 
         if args.dataset == 'CIFAR10':
             mean = [0.4914, 0.4822, 0.4465]
