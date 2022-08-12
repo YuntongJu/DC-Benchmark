@@ -77,6 +77,13 @@ Introducing a new dataset is even easier, it can be done in the following 2 step
 
 A detailed tutorial can be found [**new dataset integration**](docs/new_dataset.md)
 
+## Introduce new augmentations
+Adding new augmentations can be done with one line of code, e.g.
+```
+data_transforms = transforms.Compose([transforms.RandAugment(num_ops=1)])
+```
+More details can be found at [**new aug integration**](docs/new_aug.md)
+
 ## SOTA commands
 We collected all the commands to reproduce the SOTA synthetic results in our codebase. All the parameters are provided by the original authors.   
 - Commands for [DC](methods/dc/readme.md)
