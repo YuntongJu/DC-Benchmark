@@ -75,6 +75,8 @@ Introducing a new dataset is even easier, it can be done in the following 2 step
 - Extend the code to read from the new dataset(if the dataset is not already included in pytorch)
 - Run the eval command by specifying the new dataset
 
+A detailed tutorial can be found [**new dataset integration**](docs/new_dataset.md)
+
 ## SOTA commands
 We collected all the commands to reproduce the SOTA synthetic results in our codebase. All the parameters are provided by the original authors.   
 - Commands for [DC](methods/dc/readme.md)
