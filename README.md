@@ -84,7 +84,18 @@ data_transforms = transforms.Compose([transforms.RandAugment(num_ops=1)])
 ```
 More details can be found at [**new aug integration**](docs/new_aug.md)
 
-## SOTA commands
+
+## Introduce new models
+With DC-Bench's modularized design, it's also easy to introduce new models for evaluation.
+
+As long as the new model follows the standard PyTorch interface[nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html), you can intergare with model with the following example code
+```
+if model_name == 'mlp':
+  return MLP(channel, num_classes, im_size)
+```
+Detailed instructions can be found at [**new model integration**](docs/new_model.md)
+
+# SOTA commands
 We collected all the commands to reproduce the SOTA synthetic results in our codebase. All the parameters are provided by the original authors.   
 - Commands for [DC](methods/dc/readme.md)
 - Commands for [DSA](methods/dc/readme.md)
