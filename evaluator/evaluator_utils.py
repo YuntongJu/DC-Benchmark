@@ -101,8 +101,11 @@ class EvaluatorUtils:
                 else:
                     logging.info("using sgd optimizer")
                     optimizer = torch.optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=0.0005)
+            if ep % args.eval_gap == 0:
+                time_train = time.time() - start
+                _, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0, logging = logging)
+                print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, ep, int(time_train), loss_train, acc_train, acc_test))
         time_train = time.time() - start
-        criterion = nn.CrossEntropyLoss().to(args.device)
         _, acc_test = EvaluatorUtils.epoch('test', testloader, net, optimizer, criterion, args, aug = False, ep=0, logging = logging)
         logging.info('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
         print('%s Evaluate_%02d: epoch = %04d train time = %d s train loss = %.6f train acc = %.4f, test acc = %.4f' % (get_time(), it_eval, Epoch, int(time_train), loss_train, acc_train, acc_test))
