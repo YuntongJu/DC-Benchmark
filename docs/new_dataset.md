@@ -24,5 +24,5 @@ dst_test = datasets.ImageFolder(os.path.join('/nfs/data/justincui/data/tiny-imag
 ## Step 4: Ready to go
 Run the eval commands with your new dataset
 ```
-python evaluator/evaluator.py --method DC  --dataset NEW_DATASET
+python evaluator/evaluator.py --method DC  --dataset tinyimagenet
 ```
