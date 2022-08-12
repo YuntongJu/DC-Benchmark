@@ -20,6 +20,7 @@ dependencies:
   - cudatoolkit=11.3.1=h2bc3f7f_2
   - dataclasses=0.8=pyhc8e2a94_3
   - docker-pycreds=0.4.0=py_0
+  - einops=0.4.1=pyhd8ed1ab_0
   - ffmpeg=4.3=hf484d3e_0
   - freetype=2.11.0=h70c0345_0
   - giflib=5.2.1=h7b6447c_0
@@ -27,6 +28,7 @@ dependencies:
   - gitpython=3.1.27=pyhd8ed1ab_0
   - gmp=6.2.1=h2531618_2
   - gnutls=3.6.15=he1e5248_0
+  - gpustat=0.6.0=pyhd8ed1ab_1
   - idna=3.3=pyhd3eb1b0_0
   - intel-openmp=2021.4.0=h06a4308_3561
   - jpeg=9d=h7f8727e_0
