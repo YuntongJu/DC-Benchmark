@@ -75,7 +75,27 @@ Introducing a new dataset is even easier, it can be done in the following 2 step
 - Extend the code to read from the new dataset(if the dataset is not already included in pytorch)
 - Run the eval command by specifying the new dataset
 
-## SOTA commands
+A detailed tutorial can be found [**new dataset integration**](docs/new_dataset.md)
+
+## Introduce new augmentations
+Adding new augmentations can be done with one line of code, e.g.
+```
+data_transforms = transforms.Compose([transforms.RandAugment(num_ops=1)])
+```
+More details can be found at [**new aug integration**](docs/new_aug.md)
+
+
+## Introduce new models
+With DC-Bench's modularized design, it's also easy to introduce new models for evaluation.
+
+As long as the new model follows the standard PyTorch interface[nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html), you can intergare with model with the following example code
+```
+if model_name == 'mlp':
+  return MLP(channel, num_classes, im_size)
+```
+Detailed instructions can be found at [**new model integration**](docs/new_model.md)
+
+# SOTA commands
 We collected all the commands to reproduce the SOTA synthetic results in our codebase. All the parameters are provided by the original authors.   
 - Commands for [DC](methods/dc/readme.md)
 - Commands for [DSA](methods/dc/readme.md)
