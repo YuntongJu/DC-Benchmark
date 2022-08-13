@@ -13,4 +13,7 @@ class DSADataLoader:
 
     @staticmethod
     def get_data_file_name(method, dataset, ipc):
-        return 'res_%s_%s_ConvNet_%dipc.pt'%(method.upper(), dataset, ipc)
+        if dataset == 'tinyimagenet':
+            return 'res_%s_%s_ConvNetD4_%dipc.pt'%(method.upper(), dataset, ipc)
+        else:
+            return 'res_%s_%s_ConvNet_%dipc.pt'%(method.upper(), dataset, ipc)
