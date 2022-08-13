@@ -10,7 +10,7 @@ class RandomDataLoader:
         image_path = os.path.join(root_dir, "random", dataset, 'IPC' + str(ipc), image_path)
         label_path = os.path.join(root_dir, "random", dataset, 'IPC' + str(ipc), label_path)
         training_images = torch.load(image_path)
-        training_lables = torch.load(image_path)
+        training_lables = torch.load(label_path).long()
         return training_images, training_lables
 
 

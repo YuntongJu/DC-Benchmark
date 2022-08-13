@@ -50,7 +50,7 @@ def prepare_args():
     parser.add_argument('--num_eval', type=int, default=5, help='the number of evaluating randomly initialized models')
     parser.add_argument('--normalize_data', action="store_true", default=True, help='the number of evaluating randomly initialized models')
     parser.add_argument('--epoch_eval_train', type=int, default=300, help='epochs to train a model with synthetic data')
-    parser.add_argument('--eval_gap', type=int, default=50, help='run evaluation every eval_gap epochs.')
+    parser.add_argument('--eval_gap', type=int, default=1001, help='run evaluation every eval_gap epochs.')
     parser.add_argument('--optimizer', type=str, default="sgd", help='learning rate for updating synthetic images')
     parser.add_argument('--lr_net', type=float, default=0.01, help='learning rate for updating network parameters')
     parser.add_argument('--batch_train', type=int, default=256, help='batch size for training networks')
