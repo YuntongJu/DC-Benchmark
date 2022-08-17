@@ -15,11 +15,11 @@ class TMDataLoader:
             images = []
             labels = []
             for i in range(5):
-                images.append(torch.load(image_path.repalce('best', 'best_'+str(i))))
-                labels.append(torch.load(label_path.repalce('best', 'best_' + str(i))))
+                images.append(torch.load(image_path.replace('best', 'best_'+str(i))))
+                labels.append(torch.load(label_path.replace('best', 'best_' + str(i))).long())
             return torch.cat(images), torch.cat(labels)
         else:
-            return torch.load(image_path), torch.load(label_path)
+            return torch.load(image_path), torch.load(label_path).long()
 
     @staticmethod
     def get_data_file_name(method, dataset, ipc):

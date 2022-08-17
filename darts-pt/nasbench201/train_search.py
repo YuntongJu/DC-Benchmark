@@ -178,7 +178,42 @@ def main():
         mean = [0.4914, 0.4822, 0.4465]
         std = [0.2023, 0.1994, 0.2010]
         valid_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+        if args.dc_method == 'kip':
+            valid_transform = None
+
         real_train_data = dset.CIFAR10(root=args.data, train=True, download=True, transform=valid_transform)
+
+        if args.dc_method == 'kip':
+            images = torch.tensor(np.transpose(real_train_data.data, (0, 3, 1, 2))) / 255.0
+            labels = torch.tensor(real_train_data.targets)
+
+            orig_shape = images.shape
+            images = torch.reshape(images, (orig_shape[0], -1))
+
+            images = images - torch.mean(images, dim=1, keepdim=True)
+            # Normalize
+            train_norms = torch.norm(images, dim=1, keepdim=True)
+            # Make features unit norm
+            images = images / train_norms
+
+            n_train = images.shape[0]
+
+            cov = 1.0 / n_train * torch.matmul(torch.t(images), images)
+
+            reg_amount = 0.1 * torch.trace(cov) / cov.shape[0]
+
+            u, s, _ = torch.svd(cov + reg_amount * torch.eye(cov.shape[0]))
+
+            inv_sqrt_zca_eigs = s ** (-1 / 2)
+
+            whitening_transform = torch.einsum('ij,j,kj->ik', u, inv_sqrt_zca_eigs, u)
+
+            images = torch.matmul(images, whitening_transform)
+
+            images = torch.reshape(images, orig_shape)
+
+            real_train_data = TensorDataset(images, labels)
+
         # valid_data = dset.CIFAR10(root=args.data, train=False, download=True, transform=valid_transform)
         # random
         num_train = len(real_train_data)
@@ -191,7 +226,7 @@ def main():
             real_train_data, batch_size=args.batch_size,
             sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[split:]),
             pin_memory=True)
-        data_path = os.getcwd() + '/../../data/condensed'
+        data_path = os.getcwd() + '/../../distilled_results'
         if args.dc_method != 'whole':
             if args.dc_method == 'random':
                 training_images = torch.load(data_path + '/random/CIFAR10/IPC50/CIFAR10_IPC50_normalize_images.pt')
@@ -214,6 +249,11 @@ def main():
             elif args.dc_method == 'kmeans':
                 training_images = torch.load(data_path + '/kmeans-emb/CIFAR10/IPC50/CIFAR10_IPC50_images.pt')
                 training_labels = torch.load(data_path + '/kmeans-emb/CIFAR10/IPC50/CIFAR10_IPC50_labels.pt')
+            elif args.dc_method == 'kip':
+                data = np.load(data_path + '/KIP/CIFAR10/IPC50/kip_cifar10_ConvNet3_ssize500_zca_nol_noaug_ckpt1000.npz')
+                training_images = torch.from_numpy(data['images']).permute(0, 3, 1, 2)
+                labels = torch.from_numpy(data['labels'])
+                training_labels = torch.argmax(labels, dim=1)
             train_data = TensorDataset(training_images, training_labels.long())
             train_queue = torch.utils.data.DataLoader(
                 train_data, batch_size=args.batch_size)
