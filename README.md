@@ -119,6 +119,7 @@ Part of our code are adpoted from the following github repositories with license
 - [DatasetCondensation](https://github.com/VICO-UoE/DatasetCondensation)
 - [mtt-distillation](https://github.com/GeorgeCazenavette/mtt-distillation)
 - [DARTS-PT](https://github.com/ruocwang/darts-pt)
+- [vit-pytorch](https://github.com/lucidrains/vit-pytorch)
 
 # Citation
 ```
