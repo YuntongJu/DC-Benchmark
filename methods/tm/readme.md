@@ -66,7 +66,7 @@ python distill.py --dataset=CIFAR100 --ipc=10 --syn_steps=20 --expert_epochs=2 -
 ```
 ### IPC 50
 ```
-python distill.py --dataset=CIFAR100 --ipc=50 --syn_steps=80 --expert_epochs=2 --max_start_epoch=40 --lr_img=1000 --lr_lr=1e-05 --lr_teacher=0.01 --zca
+python distill.py --dataset=CIFAR100 --ipc=50 --syn_steps=80 --expert_epochs=2 --max_start_epoch=40 --lr_img=1000 --lr_lr=1e-05 --lr_teacher=0.01 --batch_syn=125 --zca
 ```
 ### TinyImagenet
 ### IPC 1
