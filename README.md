@@ -8,6 +8,9 @@ It covers the following:
 - How to integrate
 - Commands to reproduce all the SOTA methods
 
+# A quick Youtube demo for adding new methods
+<iframe width="888" height="675" src="https://www.youtube.com/embed/GkpUGBtvkVs?list=PLa7cY2m0LvSnN47GOG7SjHlYjMZ-t2NSJ" title="Add new method to DC-BENCH" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 # Condensed Data 
 We provide all condensed data [here](https://drive.google.com/drive/folders/1trp0MyUoL9QrbsdQ8w7TxgoXcMJecoyH?usp=sharing), this will be needed to reproduce the benchmark results. Please see the following sections for details on how to use the data.
