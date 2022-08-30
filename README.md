@@ -9,7 +9,7 @@ It covers the following:
 - Commands to reproduce all the SOTA methods
 
 # A quick Youtube demo for adding new methods
-<iframe width="888" height="675" src="https://www.youtube.com/embed/GkpUGBtvkVs?list=PLa7cY2m0LvSnN47GOG7SjHlYjMZ-t2NSJ" title="Add new method to DC-BENCH" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![IMAGE_ALT](pictures/video_demo.png)](https://www.youtube.com/watch?v=GkpUGBtvkVs&list=PLa7cY2m0LvSnN47GOG7SjHlYjMZ-t2NSJ)
 
 
 # Condensed Data 
