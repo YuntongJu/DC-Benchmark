@@ -8,6 +8,10 @@ It covers the following:
 - How to integrate
 - Commands to reproduce all the SOTA methods
 
+The corresponding **leaderboard** can be found here: **[DC Leaderboard](https://dc-bench.github.io/)**
+
+
+
 # A quick Youtube demo for adding new methods
 [![IMAGE_ALT](pictures/video_demo.png)](https://www.youtube.com/watch?v=GkpUGBtvkVs&list=PLa7cY2m0LvSnN47GOG7SjHlYjMZ-t2NSJ)
 
